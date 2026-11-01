@@ -1,0 +1,1899 @@
+<title>BigSolutions HQ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: escritório isométrico à noite (palco) + painel de trabalho à direita. Aspeto escuro único, por escolha. */
+:root{
+  color-scheme:dark;
+  --bg:#070B18; --panel:#0C1226; --raise:#121A33; --line:#1E2A4D; --ink:#E8ECF7; --muted:#8792B3;
+  --cobalt:#5B78FF; --signal:#FF6B2C; --ok:#46D08C; --holo:#5FE3FF; --warn:#F2B705;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--holo);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);height:100%}
+
+/* barra superior */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line);background:var(--panel)}
+.logo{font-family:var(--f-display);font-weight:800;font-size:1.05rem;letter-spacing:-.02em;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.logo i{width:11px;height:11px;background:var(--signal);border-radius:3px;transform:rotate(45deg);display:inline-block}
+.logo small{font-family:var(--f-mono);font-size:.7rem;color:var(--holo);font-weight:600;letter-spacing:.14em;border:1px solid color-mix(in srgb,var(--holo) 40%,transparent);border-radius:4px;padding:2px 6px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.chip{display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-variant-numeric:tabular-nums}
+.chip .d{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.spacer{flex:1}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{background:none;border:0;border-radius:999px;padding:5px 12px;font-size:.8rem;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--raise);border-radius:10px;padding:9px 14px;font-weight:600;font-size:.88rem;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--cobalt)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--signal);border-color:var(--signal);color:#1A0A02}
+.btn.blue{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.btn.sm{padding:6px 10px;font-size:.8rem;border-radius:8px}
+.btn.ghost{background:transparent}
+
+/* área principal */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 430px;min-height:0}
+.stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:radial-gradient(120% 90% at 40% 30%,#0E1733 0%,var(--bg) 70%)}
+#office{width:100%;height:100%;display:block;user-select:none}
+.stage-hint{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:14px;font-family:var(--f-mono);font-size:.74rem;color:var(--muted);background:color-mix(in srgb,var(--bg) 75%,transparent);border:1px solid var(--line);padding:6px 10px;border-radius:8px;pointer-events:none}
+.agent{cursor:pointer}
+.agent:focus{outline:none}
+.agent:focus-visible .ring{opacity:1}
+.ring{opacity:0;transition:opacity .2s}
+.agent.sel .ring{opacity:1}
+.agent.talk .ring{opacity:1;animation:ringp 1s ease-in-out infinite}
+@keyframes ringp{50%{stroke-width:4;opacity:.5}}
+.blink{animation:blink 2.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.screen{opacity:.28;transition:opacity .4s}
+.screen.lit{opacity:.62}
+.screen.on{animation:scr 1.1s steps(3) infinite}
+@keyframes scr{0%{opacity:.75}50%{opacity:1}100%{opacity:.6}}
+.tw{animation:tw 5s infinite}
+@keyframes tw{40%{opacity:.15}}
+.holo{opacity:0;transition:opacity .8s}
+.holo.on{opacity:1}
+.holo .r{animation:holo 2.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+.holo .r2{animation-delay:1.3s}
+@keyframes holo{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+.bub rect{fill:#0B1226;stroke:var(--line)}
+.bub text{font-family:var(--f-mono);font-size:11px;fill:#C9D4F2}
+.bub.hot rect{stroke:var(--holo);fill:#0A1C2E}
+.bub.hot text{fill:#fff}
+@media (prefers-reduced-motion:reduce){.blink,.screen.on,.tw,.holo .r,.agent.talk .ring{animation:none}}
+
+/* painel */
+.panel{display:flex;flex-direction:column;min-height:0;min-width:0;border-left:1px solid var(--line);background:var(--panel)}
+.tabs{display:flex;border-bottom:1px solid var(--line);padding-inline:8px}
+.tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:12px 6px;color:var(--muted);font-weight:600;font-size:.86rem;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--signal)}
+.tabs .n{font-family:var(--f-mono);font-size:.7rem;color:var(--holo);margin-left:4px}
+.view{flex:1;min-height:0;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.view[hidden]{display:none!important}
+.eyebrow{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--holo)}
+h2{font-family:var(--f-display);font-size:1.15rem;margin:0;font-weight:700;line-height:1.2;text-wrap:balance}
+.muted{color:var(--muted)}
+.note{border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 8%,transparent);border-radius:10px;padding:10px 12px;font-size:.85rem}
+.roster{display:grid;gap:8px}
+.mate{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.mate:hover{border-color:var(--c)}
+.av{width:34px;height:34px;border-radius:10px;background:var(--c);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:.85rem;color:#0A0F20}
+.mate b{display:block;font-size:.95rem}
+.mate .av{display:grid;font-size:.85rem;color:#0A0F20;white-space:normal}
+.mate span{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mate .st{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);text-align:right;max-width:120px}
+
+/* chat */
+.chat-head{display:flex;align-items:center;gap:10px}
+.chat-head .who{flex:1;min-width:0}
+.chat-head b{display:block}
+.chat-head span{font-size:.8rem;color:var(--muted)}
+.log{display:flex;flex-direction:column;gap:10px;flex:1}
+.msg{max-width:92%;padding:10px 13px;border-radius:12px;font-size:.92rem;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:var(--cobalt);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--raise);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg .by{font-family:var(--f-mono);font-size:.7rem;margin-bottom:4px;display:block}
+.msg.err{border-color:color-mix(in srgb,var(--signal) 60%,transparent);color:#FFC7AE}
+.thinking{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.sugs{display:flex;flex-wrap:wrap;gap:6px}
+.sugs button{background:none;border:1px dashed var(--line);border-radius:999px;padding:5px 10px;font-size:.78rem;color:var(--muted);cursor:pointer;text-align:left}
+.sugs button:hover{color:var(--ink);border-color:var(--cobalt)}
+.composer{display:grid;gap:8px;border-top:1px solid var(--line);padding:12px 18px;background:var(--panel)}
+.composer .row{display:flex;gap:8px;align-items:flex-end}
+textarea,input[type=text],input[type=email],input[type=date],input[type=number],select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.92rem}
+textarea{resize:vertical;min-height:44px;max-height:180px}
+label.f{display:grid;gap:6px;font-size:.8rem;font-weight:600;color:var(--muted)}
+
+/* markdown */
+.md{display:grid;gap:8px}
+.md h1,.md h2,.md h3,.md h4{font-family:var(--f-display);font-size:1rem;margin:4px 0 0;line-height:1.25}
+.md h1{font-size:1.15rem}
+.md p,.md ul,.md ol{margin:0}
+.md ul,.md ol{padding-left:20px;display:grid;gap:3px}
+.md code{font-family:var(--f-mono);font-size:.85em;background:var(--bg);padding:1px 5px;border-radius:4px}
+.md pre{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;margin:0}
+.md pre code{background:none;padding:0}
+.md .tbl{overflow-x:auto}
+.md table{border-collapse:collapse;font-size:.85rem}
+.md td,.md th{border:1px solid var(--line);padding:5px 8px;text-align:left}
+
+/* reunião */
+.speech{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px}
+.speech .av{width:30px;height:30px;border-radius:9px;font-size:.75rem}
+.speech .who{font-weight:600;font-size:.85rem}
+.speech .who span{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);font-weight:400;margin-left:6px}
+.speech .body{font-size:.92rem}
+.speech.live .body{border-left:2px solid var(--holo);padding-left:10px}
+.meet-ctrl{display:flex;flex-wrap:wrap;gap:8px}
+.callout{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px}
+.callout ul{margin:0;padding-left:18px}
+
+/* tarefas */
+.cols{display:grid;gap:16px}
+.col h3{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600}
+.card{background:var(--raise);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:10px;padding:11px 12px;display:grid;gap:6px;margin-bottom:8px}
+.card b{font-size:.92rem}
+.card p{margin:0;font-size:.82rem;color:var(--muted)}
+.card .meta{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.tag{font-family:var(--f-mono);font-size:.7rem;display:inline-flex;align-items:center;gap:5px;color:var(--muted)}
+.tag i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.acts{display:flex;gap:6px}
+.empty{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:10px;padding:14px}
+.addform{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:8px}
+details summary{cursor:pointer;font-size:.82rem;color:var(--muted)}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(3,6,14,.72);display:grid;place-items:center;z-index:20;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+
+/* ---------- back office ---------- */
+.side{display:flex;flex-direction:column;gap:22px;min-height:0;overflow:auto;padding-block:18px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:14px;border-right:1px solid var(--line);background:var(--panel)}
+.side .logo{padding-inline:8px}
+.snav{display:grid;gap:3px}
+.snav button{display:flex;align-items:center;gap:11px;background:none;border:0;border-radius:10px;padding:10px 12px;color:var(--muted);font-weight:600;font-size:.92rem;cursor:pointer;text-align:left}
+.snav button:hover{background:var(--raise);color:var(--ink)}
+.snav button[aria-current="page"]{background:var(--raise);color:var(--ink);box-shadow:inset 3px 0 0 var(--signal)}
+.ic{font-family:var(--f-mono);width:18px;text-align:center;color:var(--holo)}
+.bdg{margin-left:auto;font-family:var(--f-mono);font-size:.7rem;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--ink)}
+.bdg:empty{display:none}
+.bdg.hot{background:var(--signal);border-color:var(--signal);color:#1A0A02}
+.side-foot{margin-top:auto;display:grid;gap:10px}
+.side-foot .chips{justify-content:flex-start}
+.side-foot .seg{justify-content:stretch}
+.side-foot .seg button{flex:1}
+.main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.main>.mod,.main>.layout{flex:1;min-height:0}
+.mod{overflow:auto;padding-block:28px 48px;padding-inline:clamp(16px,3vw,40px);display:block}
+.mod>*+*{margin-top:16px}
+.mod h1{font-family:var(--f-display);font-size:clamp(1.4rem,2.4vw,1.9rem);font-weight:700;margin:6px 0 0;line-height:1.15;text-wrap:balance}
+.mod-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px}
+.mod-head p.muted{margin:8px 0 0;max-width:62ch;font-size:.92rem}
+.row-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.kpis.small{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpi{background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:4px;text-align:left;cursor:pointer;align-content:start;min-width:0}
+.kpi:hover{border-color:var(--cobalt)}
+.kpi.static{cursor:default}.kpi.static:hover{border-color:var(--line)}
+.kpi b{font-family:var(--f-display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi span{font-size:.8rem;color:var(--muted)}
+.kpi.alert{border-color:color-mix(in srgb,var(--signal) 50%,transparent)}
+.kpi.alert b{color:var(--signal)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:10px;align-content:start;min-width:0}
+.box h3{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;font-weight:600}
+details.box{display:block}
+.sum{cursor:pointer;font-weight:600;font-size:.92rem;list-style:none}
+.sum::-webkit-details-marker{display:none}
+.sum::after{content:" +";color:var(--holo);font-family:var(--f-mono)}
+details[open]>.sum::after{content:" −"}
+.item{display:flex;gap:12px;align-items:center;text-align:left;width:100%;background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.item:hover{border-color:var(--cobalt)}
+.item.static{cursor:default}.item.static:hover{border-color:var(--line)}
+.item .t{min-width:0;flex:1;display:grid;gap:2px}
+.item b{font-size:.92rem;overflow-wrap:anywhere}
+.item small{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
+.item .dot{width:9px;height:9px;border-radius:50%;background:var(--c,var(--holo));box-shadow:0 0 8px var(--c,var(--holo));flex:none}
+.item .arrow,.item .pct{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);flex:none}
+.prog{display:block;height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--signal),var(--holo));border-radius:6px}
+.pill{font-family:var(--f-mono);font-size:.68rem;border-radius:999px;padding:3px 9px;border:1px solid var(--pc,var(--muted));color:var(--pc,var(--muted));white-space:nowrap;flex:none}
+.team-now{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tn{display:flex;gap:9px;align-items:center;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;min-width:0}
+.tn:hover{border-color:var(--c)}
+.tn .av{width:26px;height:26px;border-radius:8px;background:var(--c);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:.72rem;color:#0A0F20;flex:none}
+.tn .t{min-width:0;display:grid}
+.tn b{font-size:.82rem}
+.tn small{font-family:var(--f-mono);font-size:.66rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actlist{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:.84rem}
+.actlist li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px}
+.actlist time{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.toolbar input{max-width:340px}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.8rem;color:var(--muted);cursor:pointer}
+.filters button span{font-family:var(--f-mono);font-size:.7rem;margin-left:3px}
+.filters button[aria-pressed="true"]{background:var(--raise);color:var(--ink);border-color:var(--cobalt)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.ccard{background:var(--raise);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;text-align:left;cursor:pointer;align-content:start;min-width:0}
+.ccard:hover{border-color:var(--cobalt)}
+.ccard-h{display:flex;gap:10px;align-items:flex-start}
+.ccard-h .t{flex:1;min-width:0;display:grid;gap:2px}
+.ccard-h small,.ccard small{color:var(--muted);font-size:.8rem}
+.ccard-f{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;color:var(--muted);font-family:var(--f-mono)}
+.ccard .av,.who-h .av{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;color:#0A0F20;flex:none}
+.av.lg{width:52px;height:52px;border-radius:14px;font-size:1.3rem}
+.who-h{display:flex;gap:14px;align-items:center}
+.who-h p{margin:4px 0 0}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.form-grid .full{grid-column:1/-1}
+.addform.two{grid-template-columns:minmax(0,1fr) auto}
+.list{display:grid;gap:12px}
+.req{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:10px}
+.req-h{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.req-h .t{display:grid;gap:2px;min-width:0}
+.req-h small{color:var(--muted);font-size:.8rem}
+.req-msg{margin:0;font-size:.9rem;color:#C9D4F2;white-space:pre-wrap;max-height:9.5em;overflow:auto;border-left:2px solid var(--line);padding-left:12px}
+.ana{border:1px solid color-mix(in srgb,var(--holo) 30%,transparent);background:color-mix(in srgb,var(--holo) 4%,transparent);border-radius:12px;padding:14px;display:grid;gap:10px;font-size:.9rem}
+.ana p{margin:0}
+.ana ul{margin:4px 0 0;padding-left:18px;display:grid;gap:3px}
+.ana-k{display:flex;flex-wrap:wrap;gap:22px}
+.ana-k span{display:grid}
+.ana-k small,.ana small{color:var(--muted);font-size:.74rem;font-family:var(--f-mono)}
+.ana-k b{font-family:var(--f-display);font-size:1rem;font-variant-numeric:tabular-nums}
+.mem{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:340px;overflow:auto}
+.mem li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.88rem}
+.mem li small{grid-column:1;color:var(--muted);font-family:var(--f-mono);font-size:.68rem}
+.mem .x{grid-row:1/3;grid-column:2;align-self:center;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px}
+.mem .x:hover{color:var(--signal)}
+.appr{display:grid;grid-template-columns:76px minmax(0,1fr);gap:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:16px;padding:18px}
+.appr-score{display:grid;place-content:center;justify-items:center;border-radius:14px;border:1px solid var(--sc);background:color-mix(in srgb,var(--sc) 10%,transparent);height:76px}
+.appr-score b{font-family:var(--f-display);font-size:1.7rem;color:var(--sc);line-height:1}
+.appr-score small{font-family:var(--f-mono);font-size:.68rem;color:var(--muted)}
+.appr .t{display:grid;gap:6px;min-width:0}
+.appr .t>small{color:var(--muted);font-size:.8rem}
+.appr p{margin:0;font-size:.9rem}
+.appr ul{margin:0;padding-left:18px;font-size:.86rem;color:#FFD9C7;display:grid;gap:2px}
+.chg{display:grid;gap:8px}
+.chg[hidden]{display:none!important}
+.card .rv{color:#C9D4F2}
+.mod .cols{grid-template-columns:repeat(4,minmax(0,1fr));align-items:start}
+.link{background:none;border:0;padding:0;color:var(--holo);font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}
+.btn.danger{border-color:var(--signal);color:var(--signal)}
+@media (max-width:1180px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}.mod .cols{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:980px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px 16px;overflow:visible;border-right:0;border-bottom:1px solid var(--line);padding-block:12px;padding-right:max(16px,env(safe-area-inset-right,0px));padding-left:max(16px,env(safe-area-inset-left,0px))}
+  .side .logo{padding:0}
+  .snav{order:3;width:100%;display:flex;overflow-x:auto;gap:4px;padding-bottom:2px}
+  .snav button{white-space:nowrap;padding:8px 12px;flex:none}
+  .snav button[aria-current="page"]{box-shadow:inset 0 -2px 0 var(--signal)}
+  .side-foot{margin:0 0 0 auto;display:flex;align-items:center;gap:8px}
+  .side-foot .chips{display:none}
+  .main{display:block}
+  .mod{overflow:visible}
+}
+@media (max-width:560px){.kpis,.kpis.small{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid,.form-grid.three{grid-template-columns:minmax(0,1fr)}.mod .cols{grid-template-columns:minmax(0,1fr)}.team-now{grid-template-columns:minmax(0,1fr)}.appr{grid-template-columns:minmax(0,1fr)}.appr-score{height:auto;padding:8px;grid-auto-flow:column;gap:4px;justify-content:start}.side-foot #btnMeet{display:none}}
+
+/* ---------- fase 2 ---------- */
+.item .num{font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums;flex:none}
+.tbl-wrap{overflow-x:auto}
+table.items{width:100%;border-collapse:collapse;font-size:.88rem}
+.items th{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+.items td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.items .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.items td.n input{text-align:right;width:110px}
+.items td input{padding:8px 10px}
+.items tfoot td{border-bottom:0;color:var(--muted)}
+.items tfoot .tot td{color:var(--ink);font-weight:700;font-family:var(--f-display);font-size:1rem}
+.items.ro td{padding:10px 8px}
+.items .x{background:none;border:0;color:var(--muted);cursor:pointer;padding:4px}
+.items .x:hover{color:var(--signal)}
+.fat-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start}
+.card.fat p{margin:0}
+.fe{display:flex;gap:6px}
+.fe[hidden]{display:none!important}
+.check{display:flex;gap:10px;align-items:center;font-size:.88rem;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--holo)}
+textarea.mono{font-family:var(--f-mono);font-size:.84rem;line-height:1.55;min-height:320px}
+h2.sec{font-family:var(--f-display);font-size:1.05rem;margin:28px 0 0;font-weight:700}
+.chart-h{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i,.tip i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.chart{position:relative}
+.chart svg{width:100%;height:auto;display:block}
+.chart .ax{font-family:var(--f-mono);font-size:13px;fill:var(--muted)}
+.chart svg{max-height:320px}
+.chart rect[data-m]{cursor:crosshair;outline:none}
+.chart rect[data-m]:hover,.chart rect[data-m]:focus-visible{fill:rgba(140,165,255,.06)}
+.tip{position:absolute;width:170px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.8rem;display:grid;gap:3px;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.tip span{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.ccard.static{cursor:default}.ccard.static:hover{border-color:var(--line)}
+.excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.toolbar .f{min-width:180px}
+@media (max-width:1180px){.fat-cols{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- fase 3 ---------- */
+.cmd-btn{justify-content:space-between}
+kbd{font-family:var(--f-mono);font-size:.66rem;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 5px;background:var(--bg)}
+.ap-chip{color:var(--signal);border-color:color-mix(in srgb,var(--signal) 50%,transparent)}
+.ap-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal);animation:blink 1.6s infinite}
+.ap-box.on{border-color:color-mix(in srgb,var(--signal) 45%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--signal) 6%,var(--panel)),var(--panel))}
+.ap-h{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.ap-opts{display:grid;gap:10px}
+.ap-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ap-row input[type=number]{width:80px}
+.switch{flex:none;width:52px;height:30px;border-radius:999px;border:1px solid var(--line);background:var(--bg);position:relative;cursor:pointer;transition:background .2s}
+.switch span{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.switch[aria-checked="true"]{background:color-mix(in srgb,var(--signal) 30%,var(--bg));border-color:var(--signal)}
+.switch[aria-checked="true"] span{transform:translateX(22px);background:var(--signal)}
+.switch:disabled{opacity:.4;cursor:not-allowed}
+input[type=range]{width:100%;accent-color:var(--signal)}
+.cmd-sheet{width:min(680px,100%);height:min(620px,100%)}
+.cmd-log{flex:1;min-height:0;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.cmd-form{display:flex;gap:8px;align-items:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
+#cmdVoz[aria-pressed="true"]{border-color:var(--holo);color:var(--holo)}
+.portal-sheet{width:min(980px,100%);height:100%}
+.pt-scroll{flex:1;min-height:0;overflow:auto;border-radius:0 0 16px 16px}
+.pt-root{--pbg:#05070F;--pp:#0C1226;--pl:rgba(150,172,255,.16);--pi:#EEF1FA;--pm:#8E98B8;--ps:#FF6B2C;--ph:#5FE3FF;--pk:#46D08C;background:var(--pbg);color:var(--pi);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55;margin:0}
+.pt-wrap{max-width:860px;margin:0 auto;padding:32px max(16px,env(safe-area-inset-left,0px)) 48px;display:grid;gap:18px}
+.pt-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.75rem;color:var(--pm);letter-spacing:.08em;text-transform:uppercase}
+.pt-logo{font-family:"Unbounded","Arial Black",sans-serif;font-weight:800;font-size:1rem;color:var(--pi);text-transform:none;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.pt-logo i{width:10px;height:10px;background:var(--ps);border-radius:2px;transform:rotate(45deg);display:inline-block}
+.pt-hero{background:linear-gradient(160deg,rgba(91,120,255,.16),rgba(95,227,255,.04));border:1px solid var(--pl);border-radius:20px;padding:24px;display:grid;gap:14px}
+.pt-hero h1{font-family:"Unbounded","Arial Black",sans-serif;font-size:clamp(1.4rem,4vw,2.1rem);margin:0;line-height:1.1;letter-spacing:-.03em}
+.pt-hero p{margin:0;color:var(--pm)}
+.pt-prog{display:flex;align-items:center;gap:14px}
+.pt-bar{flex:1;height:10px;border-radius:10px;background:var(--pl);overflow:hidden}
+.pt-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ps),var(--ph));border-radius:10px}
+.pt-prog b{font-family:"Unbounded",sans-serif;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.pt-facts{display:flex;flex-wrap:wrap;gap:22px;font-size:.88rem}
+.pt-facts span{display:grid}.pt-facts small{color:var(--pm);font-family:"JetBrains Mono",monospace;font-size:.7rem}
+.pt-box{background:var(--pp);border:1px solid var(--pl);border-radius:16px;padding:20px;display:grid;gap:12px}
+.pt-box h2{font-family:"JetBrains Mono",monospace;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pm);margin:0;font-weight:600}
+.pt-msg{font-size:1rem;white-space:pre-wrap}
+.pt-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pt-list li{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--pl);border-radius:12px;padding:12px 14px;flex-wrap:wrap}
+.pt-list .t{display:grid;min-width:0;flex:1}.pt-list small{color:var(--pm)}
+.pt-st{font-family:"JetBrains Mono",monospace;font-size:.7rem;border-radius:999px;padding:3px 10px;border:1px solid currentColor;white-space:nowrap}
+.pt-foot{color:var(--pm);font-size:.82rem;text-align:center}
+@media (max-width:560px){.cmd-btn kbd{display:none}.side-foot .cmd-btn{padding:8px 12px}}
+.modal[hidden],[hidden]{display:none!important}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:min(760px,100%);max-height:100%;display:flex;flex-direction:column;min-height:0}
+.sheet header{display:flex;gap:10px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.sheet header .t{flex:1;min-width:0}
+.sheet .md{padding:18px;overflow:auto}
+
+@media (max-width:980px){
+  html,body{height:auto}
+  .app{height:auto}
+  .layout{grid-template-columns:1fr}
+  .stage{height:auto;aspect-ratio:1360/830}
+  .panel{border-left:0;border-top:1px solid var(--line);min-height:75vh}
+}
+@media (max-width:520px){.addform{grid-template-columns:1fr}.seg{display:none}}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="logo"><i></i>BigSolutions <small>HQ</small></div>
+    <nav class="snav" id="nav" aria-label="Back office">
+      <button type="button" data-mod="painel"><span class="ic">◎</span>Painel</button>
+      <button type="button" data-mod="pedidos"><span class="ic">↓</span>Pedidos<span class="bdg" id="bPedidos"></span></button>
+      <button type="button" data-mod="clientes"><span class="ic">◍</span>Clientes</button>
+      <button type="button" data-mod="projetos"><span class="ic">▤</span>Projetos<span class="bdg" id="bProjetos"></span></button>
+      <button type="button" data-mod="aprovacoes"><span class="ic">✓</span>Aprovações<span class="bdg hot" id="bAprov"></span></button>
+      <button type="button" data-mod="propostas"><span class="ic">€</span>Propostas<span class="bdg" id="bProp"></span></button>
+      <button type="button" data-mod="biblioteca"><span class="ic">❐</span>Biblioteca</button>
+      <button type="button" data-mod="metricas"><span class="ic">▥</span>Métricas</button>
+      <button type="button" data-mod="definicoes"><span class="ic">⚙</span>Definições</button>
+      <button type="button" data-mod="escritorio"><span class="ic">⌂</span>Escritório</button>
+    </nav>
+    <div class="side-foot">
+      <div class="chips"><span class="chip"><span class="d"></span><span id="online">8 agentes online</span></span><span class="chip" id="clock">--:--</span><span class="chip ap-chip" id="apChip" hidden>piloto automático</span></div>
+      <div class="seg" role="group" aria-label="Modo de pensamento">
+        <button type="button" id="tierQuick" aria-pressed="true" title="Respostas rápidas">Rápido</button>
+        <button type="button" id="tierDeep" aria-pressed="false" title="Respostas mais pensadas e lentas">Profundo</button>
+      </div>
+      <button class="btn cmd-btn" id="btnCmd" type="button">Pedir ao Atlas <kbd>Ctrl K</kbd></button>
+      <button class="btn primary" id="btnMeet" type="button">Convocar reunião</button>
+    </div>
+  </aside>
+  <div class="main">
+    <section class="mod" id="m-painel" aria-label="Painel"></section>
+    <section class="mod" id="m-pedidos" aria-label="Pedidos" hidden></section>
+    <section class="mod" id="m-clientes" aria-label="Clientes" hidden></section>
+    <section class="mod" id="m-projetos" aria-label="Projetos" hidden></section>
+    <section class="mod" id="m-aprovacoes" aria-label="Aprovações" hidden></section>
+    <section class="mod" id="m-propostas" aria-label="Propostas e faturação" hidden></section>
+    <section class="mod" id="m-biblioteca" aria-label="Biblioteca" hidden></section>
+    <section class="mod" id="m-metricas" aria-label="Métricas" hidden></section>
+    <section class="mod" id="m-definicoes" aria-label="Definições" hidden></section>
+  <main class="layout" id="m-escritorio" hidden>
+    <section class="stage" aria-label="Escritório da BigSolutions">
+      <svg id="office" viewBox="-560 -170 1360 830" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Vista isométrica do escritório com os agentes"></svg>
+      <div class="stage-hint" id="hint">Clica num agente para falar com ele</div>
+    </section>
+
+    <aside class="panel">
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-view="equipa" aria-selected="true">Equipa</button>
+        <button role="tab" data-view="reuniao" aria-selected="false">Reunião</button>
+        <button role="tab" data-view="tarefas" aria-selected="false">Tarefas<span class="n" id="nTasks"></span></button>
+        <button role="tab" data-view="atas" aria-selected="false">Atas<span class="n" id="nAtas"></span></button>
+      </nav>
+
+      <div class="view" id="v-equipa">
+        <div><p class="eyebrow">A tua equipa</p><h2 style="margin-top:6px">Com quem queres trabalhar?</h2></div>
+        <p class="muted" style="margin:0;font-size:.9rem">Fala com um agente para pedir ideias ou trabalho. Convoca uma reunião quando o tema precisar de várias áreas: a equipa debate e o Atlas cria as tarefas.</p>
+        <div class="note" id="aiNote" hidden></div>
+        <div class="roster" id="roster"></div>
+      </div>
+
+      <div class="view" id="v-chat" hidden>
+        <div class="chat-head">
+          <button class="btn sm ghost" id="chatBack" type="button" aria-label="Voltar à equipa">←</button>
+          <div class="av" id="chatAv"></div>
+          <div class="who"><b id="chatName"></b><span id="chatRole"></span></div>
+          <button class="btn sm ghost" id="chatClear" type="button">Limpar</button>
+        </div>
+        <div class="log" id="chatLog" aria-live="polite"></div>
+        <div class="sugs" id="chatSugs"></div>
+      </div>
+
+      <div class="view" id="v-reuniao" hidden></div>
+      <div class="view" id="v-tarefas" hidden></div>
+      <div class="view" id="v-atas" hidden></div>
+
+      <form class="composer" id="composer" hidden>
+        <div class="row" id="meetTo" hidden>
+          <label class="f" for="meetResp" style="flex:1">Quem responde
+            <select id="meetResp"></select>
+          </label>
+        </div>
+        <div class="row">
+          <textarea id="msg" rows="2" placeholder="Escreve uma mensagem…"></textarea>
+          <button class="btn blue" id="sendBtn" type="submit">Enviar</button>
+          <button class="btn" id="stopBtn" type="button" hidden>Parar</button>
+        </div>
+      </form>
+    </aside>
+  </main>
+  </div>
+</div>
+
+<div class="modal" id="cmd" hidden>
+  <div class="sheet cmd-sheet" role="dialog" aria-modal="true" aria-labelledby="cmdT">
+    <header><div class="av" style="background:#FF6B2C">A</div><div class="t"><b id="cmdT">Pedir ao Atlas</b><div class="muted" style="font-size:.8rem">O Atlas pode criar e executar tarefas, registar pedidos, guardar memórias e abrir páginas.</div></div>
+      <button class="btn sm" id="cmdVoz" type="button" aria-pressed="false" title="O Atlas responde em voz alta">Voz</button><button class="btn sm ghost" id="cmdClose" type="button" aria-label="Fechar">✕</button></header>
+    <div class="cmd-log" id="cmdLog" aria-live="polite">
+      <div class="sugs" id="cmdSugs"><button type="button">Como está a agência hoje?</button><button type="button">Que projetos estão atrasados?</button><button type="button">Cria uma tarefa para o Echo: 5 posts de lançamento da BigSolutions</button><button type="button">Executa a tarefa mais antiga por fazer</button></div>
+    </div>
+    <form class="cmd-form" id="cmdForm"><textarea id="cmdIn" rows="2" placeholder="Ex.: regista um pedido da Clínica Sorriso, quer um site com marcações" aria-label="Pedido ao Atlas"></textarea><button class="btn primary" id="cmdGo" type="submit">Enviar</button><button class="btn" id="cmdStop" type="button" hidden>Parar</button></form>
+  </div>
+</div>
+<div class="modal portal" id="portal" hidden>
+  <div class="sheet portal-sheet" role="dialog" aria-modal="true" aria-label="Portal do cliente">
+    <header><div class="t"><b>Portal do cliente</b><div class="muted" style="font-size:.8rem">Pré-visualização do que o cliente vê. Guarda a página ou copia o email para enviar.</div></div>
+      <button class="btn sm" id="ptMsgBtn" type="button">Escrever mensagem do Atlas</button><button class="btn sm" id="ptCopy" type="button">Copiar email</button><button class="btn sm blue" id="ptSave" type="button">Guardar página</button><button class="btn sm ghost" id="ptClose" type="button" aria-label="Fechar">✕</button></header>
+    <div class="pt-root pt-scroll" id="ptView"></div>
+  </div>
+</div>
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <header>
+      <div class="av" id="mAv"></div>
+      <div class="t"><b id="mTitle"></b><div class="muted" style="font-size:.8rem" id="mSub"></div></div>
+      <button class="btn sm primary" id="mApprove" type="button" hidden>Aprovar</button>
+      <button class="btn sm" id="mLib" type="button" hidden>Guardar na biblioteca</button>
+      <button class="btn sm" id="mCopy" type="button">Copiar</button>
+      <button class="btn sm" id="mSave" type="button" hidden>Guardar .md</button>
+      <button class="btn sm ghost" id="mClose" type="button" aria-label="Fechar">✕</button>
+    </header>
+    <div class="md" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+/* ============ Equipa ============ */
+const AGENCIA = `A BigSolutions é uma agência digital portuguesa formada por 8 agentes de IA que trabalham como uma só equipa, supervisionados pelo fundador humano (é com ele que estás a falar). Serviços e preços de referência (sem IVA): websites desde 690 €, lojas online desde 1 290 €, apps e software à medida desde 3 500 €, marketing e redes sociais 390 €/mês, anúncios 290 €/mês + verba, pesquisa de sourcing 290 €, negociação de sourcing 5 % da encomenda. Equipa: Atlas (diretor de projeto), Nova (estratégia e marketing), Pixel (design e marca), Forge (desenvolvimento), Echo (conteúdo e redes sociais), Scout (sourcing de fornecedores), Ledger (propostas, orçamentos e finanças), Sentinel (qualidade, revisão e RGPD).`;
+
+const AG = [
+  {id:"atlas",nome:"Atlas",cargo:"Diretor de projeto",cor:"#FF6B2C",row:"A",dx:1.2,
+   perfil:"Coordenas a equipa: divides problemas em tarefas, decides prioridades e quem faz o quê. És calmo, estruturado e direto.",
+   idle:["a rever prioridades","a coordenar a equipa","a ler novos pedidos"],
+   sugs:["O que devemos fazer esta semana para conseguir os primeiros clientes?","Organiza um plano para lançar a agência em 30 dias"]},
+  {id:"nova",nome:"Nova",cargo:"Estratégia & marketing",cor:"#E94BA0",row:"A",dx:4.7,
+   perfil:"És estratega de marketing: públicos-alvo, posicionamento, campanhas, funis e métricas. Entusiasta mas baseada em números.",
+   idle:["a analisar concorrência","a definir públicos","a planear campanha"],
+   sugs:["Qual deve ser o nosso cliente ideal?","Cria uma campanha de lançamento com orçamento de 300 €"]},
+  {id:"pixel",nome:"Pixel",cargo:"Design & marca",cor:"#9B7BFF",row:"A",dx:8.2,
+   perfil:"És diretor de arte: identidade visual, UI/UX, paletas (com HEX), tipografia e orientação de imagens. Tens gosto exigente.",
+   idle:["a desenhar wireframes","a afinar a paleta","a esboçar logótipos"],
+   sugs:["Propõe 3 conceitos de logótipo para a BigSolutions","Como deve ser o visual do nosso Instagram?"]},
+  {id:"forge",nome:"Forge",cargo:"Desenvolvimento",cor:"#3D8BFF",row:"A",dx:11.7,
+   perfil:"És engenheiro de software: arquitetura, stacks, estimativas em horas, código. Pragmático, preferes soluções simples que funcionam.",
+   idle:["a escrever código","a fazer deploy","a otimizar o site"],
+   sugs:["Que stack usamos para sites de clientes?","Como ligo a agência à minha app Super Memória?"]},
+  {id:"echo",nome:"Echo",cargo:"Conteúdo & redes sociais",cor:"#14C2B0",row:"B",dx:1.2,
+   perfil:"És gestor de conteúdo: copy, posts, reels, calendário editorial, tom de voz, hashtags. Criativo e com bom ouvido para frases.",
+   idle:["a escrever posts","a planear reels","a responder a comentários"],
+   sugs:["Escreve o primeiro post de apresentação da agência","Dá-me 10 ideias de reels"]},
+  {id:"scout",nome:"Scout",cargo:"Sourcing",cor:"#F2B705",row:"B",dx:4.7,
+   perfil:"És especialista em sourcing: encontras e comparas fornecedores (preço, prazo, MOQ, certificações, risco). Rigoroso: o que não verificaste marcas como 'a verificar'.",
+   idle:["a comparar fornecedores","a pedir orçamentos","a verificar certificações"],
+   sugs:["Como funciona o nosso serviço de sourcing passo a passo?","Que critérios usamos para avaliar um fornecedor?"]},
+  {id:"ledger",nome:"Ledger",cargo:"Propostas & finanças",cor:"#4CC36B",row:"B",dx:8.2,
+   perfil:"És responsável comercial e financeiro: propostas, preços, margens, IVA a 23 %, faturação e tesouraria. Prudente e claro com números.",
+   idle:["a preparar propostas","a rever margens","a emitir faturas"],
+   sugs:["Os nossos preços estão bem calculados?","Faz um modelo de proposta comercial"]},
+  {id:"sentinel",nome:"Sentinel",cargo:"Qualidade & revisão",cor:"#D9E1F2",row:"B",dx:11.7,
+   perfil:"És revisor de qualidade: encontras erros, riscos legais (RGPD, direitos de imagem, AI Act), promessas irrealistas e o que falta. Exigente mas construtivo.",
+   idle:["a rever entregas","a verificar RGPD","a testar o site"],
+   sugs:["Que riscos legais tem uma agência de IA em Portugal?","Cria uma checklist de qualidade para entregas"]},
+];
+const BYID = Object.fromEntries(AG.map(a=>[a.id,a]));
+
+/* ============ Geometria isométrica ============ */
+const NS="http://www.w3.org/2000/svg";
+const TW=32, TH=16, ZH=40;
+const P=(x,y,z=0)=>[(x-y)*TW,(x+y)*TH-z*ZH];
+const pts=a=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+function E(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function box(parent,x,y,w,d,h,z0,c){
+  const g=E("g",{},parent);
+  E("polygon",{points:pts([P(x,y+d,z0),P(x+w,y+d,z0),P(x+w,y+d,z0+h),P(x,y+d,z0+h)]),fill:c[1]},g);
+  E("polygon",{points:pts([P(x+w,y,z0),P(x+w,y+d,z0),P(x+w,y+d,z0+h),P(x+w,y,z0+h)]),fill:c[2]},g);
+  E("polygon",{points:pts([P(x,y,z0+h),P(x+w,y,z0+h),P(x+w,y+d,z0+h),P(x,y+d,z0+h)]),fill:c[0]},g);
+  return g;
+}
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+
+const svg=document.getElementById("office");
+const defs=E("defs",{},svg);
+defs.innerHTML=`<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A1640"/><stop offset="1" stop-color="#2A1F4F"/></linearGradient>
+<linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0D1A44"/><stop offset="1" stop-color="#071029"/></linearGradient>`;
+const base=E("g",{},svg), scene=E("g",{},svg), top=E("g",{},svg);
+
+/* chão */
+E("polygon",{points:pts([P(0,0),P(24,0),P(24,16),P(0,16)]),fill:"#0D1430"},base);
+E("polygon",{points:pts([P(15,0),P(24,0),P(24,9),P(15,9)]),fill:"#111B3F"},base);
+E("polygon",{points:pts([P(15.6,10),P(24,10),P(24,16),P(15.6,16)]),fill:"#141433"},base);
+const grid=E("g",{stroke:"#18234A","stroke-width":".7"},base);
+for(let x=0;x<=24;x++)E("line",{x1:P(x,0)[0],y1:P(x,0)[1],x2:P(x,16)[0],y2:P(x,16)[1]},grid);
+for(let y=0;y<=16;y++)E("line",{x1:P(0,y)[0],y1:P(0,y)[1],x2:P(24,y)[0],y2:P(24,y)[1]},grid);
+// corredor de luz
+E("polygon",{points:pts([P(1,6.2),P(15,6.2),P(15,7),P(1,7)]),fill:"#5B78FF",opacity:".06"},base);
+function floorText(x,y,t,size=26){const [ex,ey]=P(x,y);const g=E("g",{transform:`matrix(1,0.5,-1,0.5,${ex},${ey})`},base);const tx=E("text",{x:0,y:0,"font-family":"Unbounded, sans-serif","font-weight":"800","font-size":size,fill:"#FFFFFF",opacity:".05"},g);tx.textContent=t;}
+floorText(0.8,12.6,"OPEN SPACE",30);floorText(16.2,7.6,"SALA ÁGORA",22);floorText(16.4,15.4,"LOUNGE",22);
+
+/* paredes */
+E("polygon",{points:pts([P(0,0,0),P(24,0,0),P(24,0,3),P(0,0,3)]),fill:"#0F1838"},base);
+E("polygon",{points:pts([P(0,0,0),P(0,16,0),P(0,16,3),P(0,0,3)]),fill:"#0B1330"},base);
+E("polyline",{points:pts([P(0,16,3),P(0,0,3),P(24,0,3)]),fill:"none",stroke:"#2A3A73","stroke-width":"2"},base);
+// janela com a cidade à noite
+(function(){const [ex,ey]=P(13.4,0,2.65);const g=E("g",{transform:`matrix(1,0.5,0,1,${ex},${ey})`},base);
+  const W=322,H=72;E("rect",{x:0,y:0,width:W,height:H,fill:"url(#sky)"},g);
+  let x=0;while(x<W){const w=12+rnd()*26,h=18+rnd()*46;E("rect",{x,y:H-h,width:w,height:h,fill:"#070C22"},g);
+    for(let wy=H-h+4;wy<H-4;wy+=7)for(let wx=x+3;wx<x+w-3;wx+=6)if(rnd()<.32)E("rect",{x:wx,y:wy,width:2.4,height:3,fill:rnd()<.5?"#FFC86B":"#7FB2FF",class:rnd()<.15?"tw":"",opacity:".85"},g);
+    x+=w+1;}
+  for(let i=1;i<6;i++)E("line",{x1:i*W/6,y1:0,x2:i*W/6,y2:H,stroke:"#24305C","stroke-width":"2"},g);
+  E("rect",{x:0,y:0,width:W,height:H,fill:"none",stroke:"#2A3A73","stroke-width":"3"},g);
+})();
+// ecrã grande
+const wall={};
+(function(){const [ex,ey]=P(1.6,0,2.6);const g=E("g",{transform:`matrix(1,0.5,0,1,${ex},${ey})`},base);
+  E("rect",{x:0,y:0,width:300,height:66,rx:4,fill:"url(#scr)",stroke:"#5B78FF","stroke-width":"1.5"},g);
+  const t1=E("text",{x:14,y:24,"font-family":"Unbounded, sans-serif","font-weight":"800","font-size":"15",fill:"#E8ECF7"},g);t1.textContent="BIGSOLUTIONS HQ";
+  wall.l2=E("text",{x:14,y:44,"font-family":"JetBrains Mono, monospace","font-size":"10.5",fill:"#5FE3FF"},g);
+  wall.l3=E("text",{x:14,y:58,"font-family":"JetBrains Mono, monospace","font-size":"10",fill:"#8792B3"},g);
+  E("circle",{cx:284,cy:14,r:3.5,fill:"#46D08C",class:"blink"},g);
+})();
+(function(){const [ex,ey]=P(0,14.6,2.35);const g=E("g",{transform:`matrix(1,-0.5,0,1,${ex},${ey})`},base);
+  const t=E("text",{x:0,y:0,"font-family":"Unbounded, sans-serif","font-weight":"800","font-size":"22",fill:"#5B78FF",opacity:".55","letter-spacing":"2"},g);t.textContent="TRABALHAMOS COMO UM SÓ";
+  E("rect",{x:0,y:10,width:330,height:3,fill:"#FF6B2C",opacity:".7"},g);
+})();
+
+/* objetos com profundidade */
+const objs=[];
+function obj(d,build){const g=E("g",{},scene);build(g);objs.push({d,el:g});return g;}
+const DESK=["#273463","#1C2750","#151D3D"];
+
+AG.forEach(a=>{
+  a.dy = a.row==="A"?2.4:8.0;
+  a.seat={x:a.dx+1.1,y:a.dy+1.9};
+  obj(a.dx+1.1+a.dy+0.5,g=>{
+    box(g,a.dx,a.dy,2.2,1,.74,0,DESK);
+    E("line",{x1:P(a.dx,a.dy+1,.74)[0],y1:P(a.dx,a.dy+1,.74)[1],x2:P(a.dx+2.2,a.dy+1,.74)[0],y2:P(a.dx+2.2,a.dy+1,.74)[1],stroke:a.cor,"stroke-width":"1.6",opacity:".75",filter:"url(#glow)"},g);
+    box(g,a.dx+.95,a.dy+.25,.3,.2,.08,.74,["#2E3B6E","#222D57","#1A2347"]);
+    box(g,a.dx+.5,a.dy+.18,1.2,.08,.62,.82,["#2E3B6E","#0B1022","#1A2347"]);
+    a.screen=E("polygon",{points:pts([P(a.dx+.55,a.dy+.26,.86),P(a.dx+1.65,a.dy+.26,.86),P(a.dx+1.65,a.dy+.26,1.4),P(a.dx+.55,a.dy+.26,1.4)]),fill:a.cor,class:"screen",filter:"url(#glow)"},g);
+    box(g,a.dx+.55,a.dy+.55,.9,.3,.03,.74,["#3A4884","#2B376A","#222C57"]);
+  });
+  obj(a.seat.x+a.seat.y-.2,g=>box(g,a.seat.x-.32,a.seat.y-.2,.64,.6,.42,0,["#2A2F55","#1E2245","#171A38"]));
+});
+
+// mesa de reunião
+const MEET={atlas:{x:16.5,y:3.8},nova:{x:17.8,y:1.9},pixel:{x:19.1,y:1.9},forge:{x:20.4,y:1.9},echo:{x:21.7,y:1.9},scout:{x:18.4,y:5.75},ledger:{x:19.8,y:5.75},sentinel:{x:21.2,y:5.75}};
+const YOU={x:23.2,y:3.8};
+Object.values(MEET).concat([YOU]).forEach(m=>obj(m.x+m.y-.2,g=>box(g,m.x-.3,m.y-.3,.6,.6,.42,0,["#2A2F55","#1E2245","#171A38"])));
+obj(23.9,g=>{
+  box(g,17.2,2.6,5.2,2.4,.72,0,["#1D2A5A","#162048","#10183A"]);
+  E("polygon",{points:pts([P(17.5,3.65,.73),P(22.1,3.65,.73),P(22.1,3.95,.73),P(17.5,3.95,.73)]),fill:"#5FE3FF",opacity:".35",filter:"url(#glow)"},g);
+});
+const holo=obj(23.95,g=>{
+  g.setAttribute("class","holo");
+  const [cx,cy]=P(19.8,3.8,.75);
+  E("ellipse",{cx,cy,rx:70,ry:35,fill:"none",stroke:"#5FE3FF","stroke-width":"2",class:"r"},g);
+  E("ellipse",{cx,cy,rx:70,ry:35,fill:"none",stroke:"#5FE3FF","stroke-width":"2",class:"r r2"},g);
+  E("polygon",{points:`${cx-40},${cy} ${cx+40},${cy} ${cx+18},${cy-70} ${cx-18},${cy-70}`,fill:"#5FE3FF",opacity:".08"},g);
+});
+// a tua cadeira holográfica
+const you=obj(YOU.x+YOU.y+.05,g=>{
+  g.setAttribute("class","holo");
+  const [x,y]=P(YOU.x,YOU.y);
+  const f=E("g",{transform:`translate(${x},${y+6})`,opacity:".75"},g);
+  E("rect",{x:-11,y:-40,width:22,height:26,rx:9,fill:"#5FE3FF",opacity:".25",stroke:"#5FE3FF","stroke-dasharray":"3 2"},f);
+  E("circle",{cy:-52,r:11,fill:"#5FE3FF",opacity:".2",stroke:"#5FE3FF"},f);
+  const t=E("text",{y:12,"text-anchor":"middle","font-family":"JetBrains Mono, monospace","font-size":"10",fill:"#5FE3FF"},f);t.textContent="TU";
+});
+// paredes de vidro
+const glass={fill:"#7FA0FF","fill-opacity":".05",stroke:"#8CA8FF","stroke-opacity":".35","stroke-width":"1.2"};
+obj(15,g=>{E("polygon",{points:pts([P(15,0,0),P(15,5.9,0),P(15,5.9,2.6),P(15,0,2.6)]),...glass},g);E("polygon",{points:pts([P(15,7.4,0),P(15,9,0),P(15,9,2.6),P(15,7.4,2.6)]),...glass},g);});
+obj(28,g=>{E("polygon",{points:pts([P(15,9,0),P(24,9,0),P(24,9,2.6),P(15,9,2.6)]),...glass},g);
+  const [ex,ey]=P(19,9,2.1);const t=E("g",{transform:`matrix(1,0.5,0,1,${ex},${ey})`},g);const tx=E("text",{"font-family":"JetBrains Mono, monospace","font-size":"10",fill:"#8CA8FF",opacity:".7"},t);tx.textContent="SALA ÁGORA · REUNIÕES";});
+// lounge
+obj(32.5,g=>{box(g,19.8,10.4,3.6,1,.95,0,["#2B2350","#211B42","#191535"]);box(g,21,10.5,.8,.5,.65,.95,["#3A3F66","#2A2E52","#202445"]);
+  const [x,y]=P(21.4,11,1.3);E("circle",{cx:x,cy:y,r:2.5,fill:"#FF6B2C",class:"blink"},g);
+  box(g,22.4,10.6,.25,.25,.15,.95,["#E8ECF7","#B8C0D8","#98A0BC"]);});
+obj(33.5,g=>{box(g,16.2,14.3,3.4,.9,.38,0,["#3B2F6B","#2D2456","#231C46"]);box(g,16.2,15,3.4,.3,.85,0,["#43367A","#2D2456","#231C46"]);});
+function plant(x,y){obj(x+y,g=>{box(g,x-.25,y-.25,.5,.5,.42,0,["#3A3F66","#2A2E52","#202445"]);const [cx,cy]=P(x,y,1.0);E("circle",{cx,cy,r:19,fill:"#1E7A55"},g);E("circle",{cx:cx-6,cy:cy-6,r:10,fill:"#2FA372"},g);});}
+plant(14.5,.7);plant(.7,15.2);plant(23.3,15.3);plant(23.3,9.8);
+
+/* ============ Rede de caminhos ============ */
+const N={};const ADJ={};
+const node=(id,x,y)=>{N[id]={x,y};ADJ[id]=ADJ[id]||[];};
+const link=(a,b)=>{ADJ[a].push(b);ADJ[b].push(a);};
+const aisle=[];
+AG.forEach(a=>{
+  node("seat:"+a.id,a.seat.x,a.seat.y);
+  if(a.row==="A"){node("ai:"+a.id,a.seat.x,6.6);link("seat:"+a.id,"ai:"+a.id);aisle.push("ai:"+a.id);}
+  else{const gx=a.dx+2.85;node("g9:"+a.id,gx,9.9);node("ai:"+a.id,gx,6.6);node("lo:"+a.id,gx,12.4);
+    link("seat:"+a.id,"g9:"+a.id);link("g9:"+a.id,"ai:"+a.id);link("g9:"+a.id,"lo:"+a.id);aisle.push("ai:"+a.id);}
+});
+node("j1",14.3,6.6);node("door",15.6,6.6);aisle.push("j1","door");
+aisle.sort((p,q)=>N[p].x-N[q].x);for(let i=1;i<aisle.length;i++)link(aisle[i-1],aisle[i]);
+node("l1",14.3,12.4);link("j1","l1");
+const coffee=[20.3,21.3,22.3,17.4,18.4];
+const lane=["l1",...AG.filter(a=>a.row==="B").map(a=>"lo:"+a.id)];
+coffee.forEach((x,i)=>{node("ca:"+i,x,12.4);node("cf:"+i,x,i<3?11.95:13.3);link("ca:"+i,"cf:"+i);lane.push("ca:"+i);});
+lane.sort((p,q)=>N[p].x-N[q].x);for(let i=1;i<lane.length;i++)link(lane[i-1],lane[i]);
+node("m38",15.6,3.8);node("m19",15.6,1.9);link("door","m38");link("m38","m19");
+let prevTop="m19",prevBot="door";
+Object.entries(MEET).forEach(([id,m])=>{
+  node("meet:"+id,m.x,m.y);
+  if(id==="atlas")link("m38","meet:atlas");
+  else if(m.y<3){node("t:"+id,m.x,1.9);link(prevTop,"t:"+id);prevTop="t:"+id;ADJ["t:"+id].push("meet:"+id);ADJ["meet:"+id].push("t:"+id);N["meet:"+id].y=m.y;}
+  else{node("b:"+id,m.x,6.6);link(prevBot,"b:"+id);prevBot="b:"+id;link("b:"+id,"meet:"+id);}
+});
+function route(from,to){
+  const dist={[from]:0},prev={},Q=new Set(Object.keys(N));
+  while(Q.size){let u=null;for(const k of Q)if(dist[k]!==undefined&&(u===null||dist[k]<dist[u]))u=k;if(u===null)break;Q.delete(u);if(u===to)break;
+    for(const v of ADJ[u]){const w=Math.hypot(N[u].x-N[v].x,N[u].y-N[v].y);const alt=dist[u]+w;if(dist[v]===undefined||alt<dist[v]){dist[v]=alt;prev[v]=u;}}}
+  const path=[];let c=to;while(c&&c!==from){path.unshift(c);c=prev[c];}return path;
+}
+
+/* ============ Agentes no escritório ============ */
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+AG.forEach(a=>{
+  a.pos={...a.seat};a.node="seat:"+a.id;a.path=[];a.waiters=[];a.idleI=Math.floor(rnd()*3);a.mode="desk";
+  const g=E("g",{class:"agent",tabindex:"0",role:"button","aria-label":`Falar com ${a.nome}, ${a.cargo}`});
+  const gs=E("g",{transform:"scale(1.3)"},g);
+  E("ellipse",{rx:20,ry:9,fill:"none",stroke:a.cor,"stroke-width":"2.4",class:"ring",filter:"url(#glow)"},gs);
+  E("ellipse",{rx:14,ry:6,fill:"#000",opacity:".45"},gs);
+  const fig=E("g",{},gs);
+  const legs=E("g",{},fig);
+  E("rect",{x:-9,y:-17,width:7,height:17,rx:3,fill:"#1B2547"},legs);E("rect",{x:2,y:-17,width:7,height:17,rx:3,fill:"#1B2547"},legs);
+  E("rect",{x:-12,y:-42,width:24,height:28,rx:10,fill:a.cor},fig);
+  E("rect",{x:-6,y:-35,width:12,height:3,rx:1.5,fill:"#fff",opacity:".55"},fig);
+  E("circle",{cy:-54,r:11.5,fill:"#0F1733",stroke:a.cor,"stroke-width":"1.6"},fig);
+  E("rect",{x:-8,y:-58,width:16,height:6,rx:3,fill:a.cor,filter:"url(#glow)"},fig);
+  E("line",{x1:0,y1:-65.5,x2:0,y2:-72,stroke:a.cor,"stroke-width":"1.6"},fig);
+  E("circle",{cy:-73,r:2.3,fill:a.cor,class:"blink"},fig);
+  const tag=E("text",{y:15,"text-anchor":"middle","font-family":"JetBrains Mono, monospace","font-size":"10",fill:"#8792B3"},gs);tag.textContent=a.nome.toUpperCase();
+  a.g=g;a.fig=fig;a.legs=legs;
+  objs.push({agent:a,el:g});scene.appendChild(g);
+  g.addEventListener("click",()=>openChat(a.id));
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openChat(a.id);}});
+  // balão
+  const b=E("g",{class:"bub","pointer-events":"none"},top);
+  a.bubR=E("rect",{x:0,y:-22,height:20,rx:6},b);
+  E("path",{d:"M-4 -2 L0 4 L4 -2 Z",fill:"#0B1226"},b);
+  a.bubT=E("text",{x:0,y:-8.5,"text-anchor":"middle"},b);a.bub=b;a.bubText="";
+});
+function goTo(a,dest){
+  const start=a.path.length?a.path[0]:a.node;
+  const r=route(start,dest);
+  a.path=a.path.length?[a.path[0],...r]:r;
+  if(!a.path.length)return Promise.resolve();
+  return new Promise(res=>a.waiters.push(res));
+}
+const SPEED=3.4;let last=performance.now();
+function frame(t){
+  const dt=Math.min(.05,(t-last)/1000);last=t;
+  for(const a of AG){
+    let moving=false;
+    if(a.path.length){
+      const n=N[a.path[0]];const dx=n.x-a.pos.x,dy=n.y-a.pos.y,dist=Math.hypot(dx,dy),step=reduce?99:SPEED*dt;
+      if(dist<=step){a.pos.x=n.x;a.pos.y=n.y;a.node=a.path.shift();}else{a.pos.x+=dx/dist*step;a.pos.y+=dy/dist*step;}
+      moving=true;
+      if(!a.path.length){const w=a.waiters;a.waiters=[];w.forEach(f=>f());}
+    }
+    const sitting=!moving&&(a.node.startsWith("seat:")||a.node.startsWith("meet:"));
+    const [x,y]=P(a.pos.x,a.pos.y);
+    a.g.setAttribute("transform",`translate(${x.toFixed(1)},${y.toFixed(1)})`);
+    const bob=moving&&!reduce?Math.abs(Math.sin(t/110))*-3:0;
+    a.fig.setAttribute("transform",`translate(0,${sitting?9:bob.toFixed(1)})`);
+    a.legs.style.display=sitting?"none":"";
+    a.moving=moving;
+    // balão
+    const s=status(a);
+    if(s!==a.bubText){a.bubText=s;a.bubT.textContent=s;const w=Math.max(40,a.bubT.getComputedTextLength()+16);a.bubR.setAttribute("x",-w/2);a.bubR.setAttribute("width",w);}
+    a.bub.style.display=s?"":"none";
+    a.bub.setAttribute("transform",`translate(${x.toFixed(1)},${(y-(sitting?90:106)).toFixed(1)})`);
+    a.bub.classList.toggle("hot",!!(a.talking||a.typing||a.working));
+    a.g.classList.toggle("talk",!!a.talking);
+    a.g.classList.toggle("sel",state.chatWith===a.id&&state.view==="chat");
+    a.screen.classList.toggle("on",!!(a.working||a.typing));a.screen.classList.toggle("lit",sitting&&a.node.startsWith("seat:"));
+  }
+  const order=objs.map(o=>({el:o.el,d:o.agent?o.agent.pos.x+o.agent.pos.y+.05:o.d})).sort((p,q)=>p.d-q.d);
+  let i=0,changed=false;const kids=scene.childNodes;
+  for(const o of order){if(kids[i]!==o.el){changed=true;break;}i++;}
+  if(changed)order.forEach(o=>scene.appendChild(o.el));
+  requestAnimationFrame(frame);
+}
+const cut=(s,n=30)=>s.length>n?s.slice(0,n-1)+"…":s;
+function status(a){
+  const m=state.meeting;
+  if(a.talking)return "a falar…";
+  if(a.working)return cut("a trabalhar: "+a.working);
+  if(a.typing)return "a responder-te…";
+  if(m&&m.inRoom)return a.moving?"a caminho da reunião":"";
+  if(a.moving)return a.coffee?"pausa para café":"a voltar à secretária";
+  if(a.coffee)return "pausa para café";
+  if(state.chatWith===a.id&&state.view==="chat")return "em conversa contigo";
+  const t=state.tarefas.find(t=>t.agente===a.id&&!["feito","revisao","aprovado"].includes(t.estado));
+  if(t)return cut("próxima: "+t.titulo);
+  return a.idle[a.idleI];
+}
+setInterval(()=>{const a=AG[Math.floor(Math.random()*AG.length)];a.idleI=(a.idleI+1)%a.idle.length;},4000);
+// pausas para café
+setInterval(async()=>{
+  if(state.meeting||Math.random()<.45)return;
+  const free=AG.filter(a=>!a.coffee&&!a.working&&!a.typing&&!a.moving&&a.node==="seat:"+a.id&&state.chatWith!==a.id);
+  if(!free.length)return;
+  const used=new Set(AG.filter(a=>a.coffee).map(a=>a.coffeeSpot));
+  const spots=coffee.map((_,i)=>i).filter(i=>!used.has(i));if(!spots.length)return;
+  const a=free[Math.floor(Math.random()*free.length)],sp=spots[Math.floor(Math.random()*spots.length)];
+  a.coffee=true;a.coffeeSpot=sp;
+  await goTo(a,"cf:"+sp);
+  await new Promise(r=>setTimeout(r,5000+Math.random()*4000));
+  if(a.coffee&&!state.meeting){await goTo(a,"seat:"+a.id);}
+  a.coffee=false;a.coffeeSpot=null;
+},7000);
+
+/* ============ Estado e armazenamento ============ */
+const state={view:"equipa",chatWith:null,chats:{},tarefas:[],atas:[],clientes:[],pedidos:[],projetos:[],propostas:[],faturas:[],biblioteca:[],meeting:null,tier:"quick",busy:{},loaded:false};
+const LS={get(k,d){try{const v=localStorage.getItem("bshq-"+k);return v?JSON.parse(v):d;}catch{return d;}},set(k,v){try{localStorage.setItem("bshq-"+k,JSON.stringify(v));}catch{}}};
+state.chats=LS.get("chats",{});
+state.tier=LS.get("tier","quick");
+const COLS=["tarefas","atas","clientes","pedidos","projetos","propostas","faturas","biblioteca"];
+const Store={db:null,cols:{},
+  async init(){
+    let db=null,user=null,uid=null;
+    try{[db,user]=await Promise.all([window.claude?.use?.("db"),window.claude?.use?.("user")]);uid=user?await user.id():null;}catch{}
+    if(db&&uid){
+      this.db=db;
+      for(const k of COLS){
+        const col=db.collection(`data/users/${uid}/hq/${k}`);this.cols[k]=col;
+        const timer=setTimeout(()=>{if(!state.loaded){state.loadErr=true;render();}},10000);
+        col.onSnapshot(s=>{clearTimeout(timer);state[k]=s.docs.map(d=>({id:d.id,...d.data()})).sort((p,q)=>(p.criadaEm||0)-(q.criadaEm||0));state.loaded=true;state.loadErr=false;render();},
+          ()=>{clearTimeout(timer);state.loadErr=true;render();});
+      }
+    }else{for(const k of COLS)state[k]=LS.get(k,[]);state.loaded=true;render();}
+  },
+  async add(k,data){data.criadaEm=Date.now();
+    if(this.db){const ref=this.cols[k].doc();await ref.set(data);return ref.id;}
+    const id="l"+Math.random().toString(36).slice(2,9);state[k].push({id,...data});LS.set(k,state[k]);render();return id;},
+  async update(k,id,patch){
+    if(this.db){await this.cols[k].doc(id).update(patch);return;}
+    const it=state[k].find(x=>x.id===id);if(it)Object.assign(it,patch);LS.set(k,state[k]);render();},
+  async remove(k,id){
+    if(this.db){await this.cols[k].doc(id).delete();return;}
+    state[k]=state[k].filter(x=>x.id!==id);LS.set(k,state[k]);render();}
+};
+
+/* ============ Claude ============ */
+let S=null,DL=null;
+const ERR={not_granted:"Sem permissão para usar o Claude. Ativa-a no menu Permissões deste artefacto.",rate_limited:"Muitos pedidos seguidos. Espera um momento e tenta de novo.",cancelled:"Parado.",refused:"Este agente não pode responder a esse pedido.",prompt_too_large:"A conversa ficou longa demais. Usa Limpar e recomeça.",unavailable:"Os agentes só respondem com a página aberta no claude.ai.",invalid_json:"A resposta veio num formato inesperado. Tenta de novo."};
+const errMsg=e=>ERR[e?.code]||`Não foi possível obter resposta (${e?.code||"erro"}).`;
+function memoria(){
+  const t=state.tarefas.slice(-15).map(t=>`- [${t.estado}] ${t.titulo} (${BYID[t.agente]?.nome||t.agente})`).join("\n");
+  const a=state.atas.slice(-2).map(a=>`- Reunião "${a.topico}": ${a.resumo}`).join("\n");
+  const pj=state.projetos.filter(p=>p.estado!=="entregue").map(p=>`- ${p.nome} (${state.clientes.find(c=>c.id===p.clienteId)?.nome||"sem cliente"}, estado ${p.estado}, prazo ${p.prazo||"—"})`).join("\n");
+  return `MEMÓRIA PARTILHADA DA EQUIPA\nProjetos ativos:\n${pj||"- (nenhum)"}\nTarefas:\n${t||"- (nenhuma)"}\nÚltimas reuniões:\n${a||"- (nenhuma)"}`;
+}
+function persona(a){
+  return `És ${a.nome}, ${a.cargo} da BigSolutions. ${a.perfil}\n\n${AGENCIA}\n\n${memoria()}${casa()}\n\nRegras: escreve em português de Portugal e trata o fundador por "tu". Sê concreto e útil, com personalidade própria. Usa Markdown simples quando ajudar. Não inventes factos sobre clientes, empresas ou fornecedores reais: se precisares de dados, pergunta ou marca como "a verificar". Em conversa, responde em até 180 palavras.`;
+}
+function ask(input,opts={}){
+  if(!S)return Promise.reject({code:"unavailable"});
+  return S(input,{cache:false,modelTier:opts.tier||(state.tier==="deep"?"default":"quick"),onText:opts.onText,signal:opts.signal});
+}
+
+/* ============ Markdown ============ */
+function md(src){
+  const esc=t=>t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const inl=t=>esc(t).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/(^|[\s(])[*_]([^*_\n]+)[*_](?=[\s).,;:!?]|$)/g,"$1<em>$2</em>");
+  const L=(src||"").split("\n");let h="",i=0;
+  while(i<L.length){const l=L[i];
+    if(/^```/.test(l)){let c=[];i++;while(i<L.length&&!/^```/.test(L[i]))c.push(L[i++]);i++;h+=`<pre><code>${esc(c.join("\n"))}</code></pre>`;continue;}
+    let m=l.match(/^(#{1,4})\s+(.*)/);if(m){const n=Math.min(4,m[1].length);h+=`<h${n}>${inl(m[2])}</h${n}>`;i++;continue;}
+    if(/^\s*\|/.test(l)){let r=[];while(i<L.length&&/^\s*\|/.test(L[i]))r.push(L[i++]);
+      r=r.filter(x=>!/^\s*\|?\s*:?-{2,}/.test(x));h+='<div class="tbl"><table>'+r.map((x,j)=>"<tr>"+x.trim().replace(/^\||\|$/g,"").split("|").map(c=>j?`<td>${inl(c.trim())}</td>`:`<th>${inl(c.trim())}</th>`).join("")+"</tr>").join("")+"</table></div>";continue;}
+    if(/^\s*[-*•]\s+/.test(l)){h+="<ul>";while(i<L.length&&/^\s*[-*•]\s+/.test(L[i]))h+=`<li>${inl(L[i++].replace(/^\s*[-*•]\s+/,""))}</li>`;h+="</ul>";continue;}
+    if(/^\s*\d+[.)]\s+/.test(l)){h+="<ol>";while(i<L.length&&/^\s*\d+[.)]\s+/.test(L[i]))h+=`<li>${inl(L[i++].replace(/^\s*\d+[.)]\s+/,""))}</li>`;h+="</ol>";continue;}
+    if(!l.trim()){i++;continue;}
+    let p=[];while(i<L.length&&L[i].trim()&&!/^(#{1,4}\s|```|\s*[-*•]\s|\s*\d+[.)]\s|\s*\|)/.test(L[i]))p.push(L[i++]);
+    if(!p.length){p.push(L[i++]);}
+    h+=`<p>${p.map(inl).join("<br>")}</p>`;
+  }
+  return h;
+}
+const $=id=>document.getElementById(id);
+const escH=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+/* ============ Vistas ============ */
+function showView(v){
+  state.view=v;
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.view===v||(v==="chat"&&b.dataset.view==="equipa"))));
+  ["equipa","chat","reuniao","tarefas","atas"].forEach(k=>$("v-"+k).hidden=k!==v);
+  render();
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+
+function render(){
+  $("nTasks").textContent=state.tarefas.filter(t=>!["feito","revisao","aprovado"].includes(t.estado)).length||"";
+  renderMod();
+  $("nAtas").textContent=state.atas.length||"";
+  wallStats();
+  if(state.view==="equipa")renderRoster();
+  if(state.view==="chat")renderChat();
+  if(state.view==="reuniao")renderMeeting();
+  if(state.view==="tarefas")renderTasks();
+  if(state.view==="atas")renderAtas();
+  renderComposer();
+}
+function renderRoster(){
+  $("roster").innerHTML=AG.map(a=>`<button class="mate" style="--c:${a.cor}" data-id="${a.id}"><span class="av">${a.nome[0]}</span><span><b>${a.nome}</b><span>${a.cargo}</span></span><span class="st">${escH(status(a)||"em reunião")}</span></button>`).join("");
+  $("roster").querySelectorAll(".mate").forEach(b=>b.onclick=()=>openChat(b.dataset.id));
+}
+setInterval(()=>{if(state.view==="equipa")$("roster").querySelectorAll(".mate").forEach(b=>{b.querySelector(".st").textContent=status(BYID[b.dataset.id])||"em reunião";});},1500);
+
+/* ---- chat ---- */
+let chatCtl=null;
+function openChat(id){if(state.mod!=="escritorio")showMod("escritorio");state.chatWith=id;showView("chat");setTimeout(()=>$("msg").focus(),50);}
+$("chatBack").onclick=()=>{state.chatWith=null;showView("equipa");};
+$("chatClear").onclick=()=>{state.chats[state.chatWith]=[];LS.set("chats",state.chats);renderChat();};
+function renderChat(){
+  const a=BYID[state.chatWith];if(!a)return;
+  $("chatAv").style.background=a.cor;$("chatAv").textContent=a.nome[0];$("chatName").textContent=a.nome;$("chatRole").textContent=a.cargo;
+  const turns=state.chats[a.id]||[];
+  const log=$("chatLog");
+  log.innerHTML=turns.length?turns.map(t=>t.role==="user"?`<div class="msg me">${escH(t.content).replace(/\n/g,"<br>")}</div>`:`<div class="msg ai${t.err?" err":""}"><span class="by" style="color:${a.cor}">${a.nome.toUpperCase()}</span><div class="md">${md(t.content)}</div></div>`).join("")
+    :`<div class="msg ai"><span class="by" style="color:${a.cor}">${a.nome.toUpperCase()}</span><div class="md"><p>Olá! Sou ${a.nome}, ${a.cargo.toLowerCase()}. Em que posso ajudar?</p></div></div>`;
+  $("chatSugs").innerHTML=turns.length?"":a.sugs.map(s=>`<button type="button">${escH(s)}</button>`).join("");
+  $("chatSugs").querySelectorAll("button").forEach(b=>b.onclick=()=>{$("msg").value=b.textContent;$("composer").requestSubmit();});
+  if(a.typing){const d=document.createElement("div");d.className="msg ai";d.innerHTML=`<span class="by" style="color:${a.cor}">${a.nome.toUpperCase()}</span><div class="md" id="liveChat">${a.liveText?md(a.liveText):'<span class="thinking">a pensar…</span>'}</div>`;log.appendChild(d);}
+  const v=$("v-chat");v.scrollTop=v.scrollHeight;
+}
+async function sendChat(text){
+  const a=BYID[state.chatWith];if(!a||a.typing)return;
+  const turns=state.chats[a.id]=state.chats[a.id]||[];
+  turns.push({role:"user",content:text});
+  a.typing=true;a.liveText="";renderChat();renderComposer();
+  let hist=turns.filter(t=>!t.err).slice(-16);while(hist.length&&hist[0].role!=="user")hist.shift();
+  const input=hist.map((t,i)=>({role:t.role,content:i===0?persona(a)+"\n\n---\nMensagem do fundador:\n"+t.content:t.content}));
+  chatCtl=new AbortController();
+  try{
+    const {text:out}=await ask(input,{signal:chatCtl.signal,onText:({text})=>{a.liveText=text;const el=$("liveChat");if(el&&state.chatWith===a.id){el.innerHTML=md(text);const v=$("v-chat");v.scrollTop=v.scrollHeight;}}});
+    turns.push({role:"assistant",content:out});falar(out,a.id);
+  }catch(e){turns.push({role:"assistant",content:(e.text?e.text+"\n\n":"")+errMsg(e),err:true});}
+  a.typing=false;a.liveText="";chatCtl=null;LS.set("chats",state.chats);
+  if(state.view==="chat"&&state.chatWith===a.id)renderChat();renderComposer();
+}
+
+/* ---- composer partilhado ---- */
+function renderComposer(){
+  const c=$("composer"),v=state.view,m=state.meeting;
+  const show=v==="chat"||(v==="reuniao"&&m&&m.started&&!m.closed);
+  c.hidden=!show;if(!show)return;
+  $("meetTo").hidden=v!=="reuniao";
+  const busy=v==="chat"?!!BYID[state.chatWith]?.typing:!!m?.busy;
+  $("sendBtn").hidden=busy;$("stopBtn").hidden=!busy;
+  $("msg").placeholder=v==="chat"?`Escreve a ${BYID[state.chatWith]?.nome||""}…`:"Intervém na reunião…";
+  if(v==="reuniao"){const s=$("meetResp");if(!s.options.length)s.innerHTML=AG.map(a=>`<option value="${a.id}">${a.nome} · ${a.cargo}</option>`).join("");}
+}
+$("composer").addEventListener("submit",e=>{e.preventDefault();const t=$("msg").value.trim();if(!t)return;$("msg").value="";
+  if(state.view==="chat")sendChat(t);else if(state.view==="reuniao")intervene(t,$("meetResp").value);});
+$("msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("composer").requestSubmit();}});
+$("stopBtn").onclick=()=>{if(state.view==="chat")chatCtl?.abort();else state.meeting?.ctl?.abort();};
+
+/* ---- reunião ---- */
+function convene(){
+  if(state.mod!=="escritorio")showMod("escritorio");
+  if(!state.meeting){
+    state.meeting={topic:"",transcript:[],inRoom:true,started:false,closed:false,busy:false};
+    holo.classList.add("on");you.classList.add("on");
+    AG.forEach(a=>{a.coffee=false;goTo(a,"meet:"+a.id);});
+  }
+  showView("reuniao");setTimeout(()=>$("topic")?.focus(),50);
+}
+$("btnMeet").onclick=convene;
+function dismiss(){
+  const m=state.meeting;if(!m)return;m.ctl?.abort();
+  state.meeting=null;holo.classList.remove("on");you.classList.remove("on");
+  AG.forEach(a=>{a.talking=false;goTo(a,"seat:"+a.id);});
+  render();
+}
+const arrived=()=>Promise.all(AG.map(a=>a.path.length?new Promise(r=>a.waiters.push(r)):null));
+function transcriptText(){return state.meeting.transcript.map(t=>`${t.quem==="tu"?"Fundador":BYID[t.quem].nome}: ${t.texto}`).join("\n\n");}
+async function speak(id,prompt,{strip}={}){
+  const m=state.meeting;if(!m)return null;
+  const a=BYID[id];const entry={quem:id,texto:"",live:true};m.transcript.push(entry);
+  a.talking=true;m.busy=true;m.ctl=new AbortController();renderMeeting();renderComposer();
+  let out=null;
+  try{const r=await ask(prompt,{signal:m.ctl.signal,onText:({text})=>{entry.texto=strip?strip(text):text;updateLive(entry);}});out=r.text;entry.texto=strip?strip(out):out;}
+  catch(e){entry.texto=(e.text?(strip?strip(e.text):e.text)+"\n\n":"")+"_"+errMsg(e)+"_";entry.err=e.code;}
+  if(!entry.err&&out)falar(entry.texto,id);entry.live=false;a.talking=false;m.busy=false;m.ctl=null;
+  if(state.meeting===m){renderMeeting();renderComposer();}
+  return entry.err?null:out;
+}
+function updateLive(entry){const el=document.querySelector('.speech.live .body');if(el){el.innerHTML=md(entry.texto);const v=$("v-reuniao");v.scrollTop=v.scrollHeight;}}
+async function startMeeting(topic){
+  const m=state.meeting;m.topic=topic;m.started=true;renderMeeting();renderComposer();
+  await arrived();if(state.meeting!==m)return;
+  const ids=AG.slice(1).map(a=>a.id).join(", ");
+  const open=await speak("atlas",`${persona(BYID.atlas)}\n\nEstás a abrir uma reunião de equipa na Sala Ágora. Tema proposto pelo fundador: "${topic}".\nFaz uma abertura curta (até 80 palavras): enquadra o tema e diz o que esperas de cada pessoa. Na última linha escreve exatamente "ORDEM:" seguido dos ids de 2 a 4 especialistas que devem falar, por ordem, separados por vírgulas, escolhidos de: ${ids}.`,{strip:t=>t.replace(/\n?\s*ORDEM:[\s\S]*$/i,"").trim()});
+  if(!open||state.meeting!==m)return;
+  const mm=open.match(/ORDEM:\s*([^\n]+)/i);
+  let order=(mm?mm[1]:"").toLowerCase().split(/[,\s]+/).filter(x=>BYID[x]&&x!=="atlas");
+  if(!order.length)order=["nova","forge","ledger"];
+  m.order=[...new Set(order)].slice(0,4);
+  await round();
+}
+async function round(){
+  const m=state.meeting;if(!m)return;
+  for(const id of m.order){
+    if(state.meeting!==m)return;
+    const a=BYID[id];
+    const r=await speak(id,`${persona(a)}\n\nEstás numa reunião da equipa na Sala Ágora. Tema: "${m.topic}".\nTranscrição até agora:\n\n${transcriptText()}\n\nÉ a tua vez de falar como ${a.nome}. Contribui com a tua especialidade em até 110 palavras: uma proposta concreta, números quando fizer sentido, e reage ao que foi dito (concorda, discorda ou acrescenta). Não repitas o que já foi dito. Escreve só a tua fala, sem o teu nome no início.`);
+    if(r===null)break;
+  }
+}
+async function intervene(text,resp){
+  const m=state.meeting;if(!m||m.busy)return;
+  m.transcript.push({quem:"tu",texto:text});renderMeeting();
+  const a=BYID[resp];
+  await speak(resp,`${persona(a)}\n\nEstás numa reunião da equipa. Tema: "${m.topic}".\nTranscrição:\n\n${transcriptText()}\n\nO fundador acabou de intervir e pediu que fosses tu a responder. Responde-lhe diretamente como ${a.nome}, em até 120 palavras. Escreve só a tua fala.`);
+}
+async function closeMeeting(){
+  const m=state.meeting;if(!m||m.busy)return;
+  m.busy=true;BYID.atlas.talking=true;m.closing=true;renderMeeting();renderComposer();
+  m.ctl=new AbortController();
+  try{
+    if(!S)throw {code:"unavailable"};
+    const data=await S.json(`${persona(BYID.atlas)}\n\nVais encerrar a reunião. Tema: "${m.topic}".\nTranscrição:\n\n${transcriptText()}\n\nResponde só com JSON neste formato:\n{"resumo":"3 a 5 frases","decisoes":["..."],"tarefas":[{"titulo":"curto, começa por um verbo","agente":"id","detalhe":"o que deve ser entregue"}]}\nCria 2 a 6 tarefas, cada uma atribuída ao especialista certo. ids válidos: ${AG.map(a=>a.id).join(", ")}.`,{cache:false,modelTier:"default",signal:m.ctl.signal});
+    const tarefas=(Array.isArray(data?.tarefas)?data.tarefas:[]).filter(t=>t&&t.titulo).map(t=>({titulo:String(t.titulo).slice(0,140),agente:BYID[t.agente]?t.agente:"atlas",detalhe:String(t.detalhe||"").slice(0,600)}));
+    const ata={topico:m.topic,resumo:String(data?.resumo||""),decisoes:(data?.decisoes||[]).map(String).slice(0,10),tarefas:tarefas.map(t=>t.titulo),transcricao:m.transcript.map(t=>({quem:t.quem,texto:String(t.texto).slice(0,4000)}))};
+    m.transcript.push({quem:"atlas",texto:"**Resumo:** "+ata.resumo});
+    await Store.add("atas",ata);
+    for(const t of tarefas)await Store.add("tarefas",{...t,estado:"afazer",origem:m.topic});
+    m.result={...ata,tarefasCriadas:tarefas};m.closed=true;
+  }catch(e){m.closeErr=errMsg(e);}
+  m.busy=false;m.closing=false;BYID.atlas.talking=false;m.ctl=null;
+  if(state.meeting===m){renderMeeting();renderComposer();}
+}
+function renderMeeting(){
+  const v=$("v-reuniao"),m=state.meeting;
+  if(!m){v.innerHTML=`<div><p class="eyebrow">Sala Ágora</p><h2 style="margin-top:6px">Reunião de equipa</h2></div>
+    <p class="muted" style="margin:0;font-size:.9rem">Convoca a equipa: todos vão à mesa de reuniões. Diz o tema, os especialistas certos debatem, e no fim o Atlas escreve a ata e cria as tarefas.</p>
+    <button class="btn primary" id="mGo" type="button" style="justify-self:start">Convocar reunião</button>`;
+    $("mGo").onclick=convene;return;}
+  if(!m.started){
+    v.innerHTML=`<div><p class="eyebrow">Sala Ágora · a equipa está a chegar</p><h2 style="margin-top:6px">Qual é o tema da reunião?</h2></div>
+    <label class="f" for="topic">Tema<textarea id="topic" rows="3" placeholder="Ex.: Como conseguir os primeiros 5 clientes este mês"></textarea></label>
+    <div class="sugs">${["Plano de lançamento da BigSolutions","Como ligar a agência à Super Memória","Estratégia para as redes sociais no primeiro mês"].map(s=>`<button type="button">${s}</button>`).join("")}</div>
+    <div class="meet-ctrl"><button class="btn primary" id="mStart" type="button">Começar reunião</button><button class="btn ghost" id="mCancel" type="button">Dispensar equipa</button></div>`;
+    v.querySelectorAll(".sugs button").forEach(b=>b.onclick=()=>{$("topic").value=b.textContent;});
+    $("mStart").onclick=()=>{const t=$("topic").value.trim();if(!t){$("topic").focus();return;}startMeeting(t);};
+    $("mCancel").onclick=dismiss;return;}
+  const items=m.transcript.map(t=>{const a=t.quem==="tu"?{nome:"Tu",cor:"#5FE3FF",cargo:"Fundador"}:BYID[t.quem];
+    return `<div class="speech${t.live?" live":""}"><span class="av" style="background:${a.cor}">${a.nome[0]}</span><div style="min-width:0"><div class="who">${a.nome}<span>${a.cargo}</span></div><div class="body md">${t.texto?md(t.texto):'<span class="thinking">a pensar…</span>'}</div></div></div>`;}).join("");
+  let foot="";
+  if(m.closed&&m.result){foot=`<div class="callout"><p class="eyebrow">Ata guardada</p><div class="md"><p>${escH(m.result.resumo)}</p></div>${m.result.decisoes.length?`<b style="font-size:.85rem">Decisões</b><ul>${m.result.decisoes.map(d=>`<li>${escH(d)}</li>`).join("")}</ul>`:""}${m.result.tarefasCriadas.length?`<b style="font-size:.85rem">Tarefas criadas</b><ul>${m.result.tarefasCriadas.map(t=>`<li>${escH(t.titulo)} · <span class="muted">${BYID[t.agente].nome}</span></li>`).join("")}</ul>`:""}</div>
+    <div class="meet-ctrl"><button class="btn blue" id="mTasks" type="button">Ver tarefas</button><button class="btn" id="mEnd" type="button">Terminar e voltar ao trabalho</button></div>`;}
+  else if(!m.busy&&m.transcript.length){foot=`${m.closeErr?`<div class="note">${escH(m.closeErr)}</div>`:""}<div class="meet-ctrl"><button class="btn" id="mRound" type="button">Mais uma ronda</button><button class="btn primary" id="mClose" type="button">Encerrar e criar tarefas</button><button class="btn ghost" id="mEnd" type="button">Dispensar</button></div>`;}
+  else if(m.closing){foot=`<p class="thinking">O Atlas está a escrever a ata e a distribuir tarefas…</p>`;}
+  else if(!m.transcript.length){foot=`<p class="thinking">A equipa está a sentar-se…</p>`;}
+  v.innerHTML=`<div><p class="eyebrow">Sala Ágora · em reunião</p><h2 style="margin-top:6px">${escH(m.topic)}</h2></div>${items}${foot}`;
+  const b=id=>$(id);
+  if(b("mRound"))b("mRound").onclick=()=>round();
+  if(b("mClose"))b("mClose").onclick=closeMeeting;
+  if(b("mEnd"))b("mEnd").onclick=()=>{dismiss();showView(m.closed?"tarefas":"reuniao");};
+  if(b("mTasks"))b("mTasks").onclick=()=>{dismiss();showView("tarefas");};
+  v.scrollTop=v.scrollHeight;
+}
+
+/* ---- tarefas ---- */
+
+/* ---- atas ---- */
+function renderAtas(){
+  const v=$("v-atas");
+  const list=[...state.atas].reverse();
+  v.innerHTML=`<div><p class="eyebrow">Atas de reunião</p><h2 style="margin-top:6px">O que a equipa decidiu</h2></div>`+
+   (list.length?list.map(a=>`<div class="callout"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${escH(a.topico)}</b><span class="tag">${new Date(a.criadaEm).toLocaleString("pt-PT",{dateStyle:"short",timeStyle:"short"})}</span></div><p style="margin:0;font-size:.9rem">${escH(a.resumo)}</p>${a.decisoes?.length?`<ul style="font-size:.88rem">${a.decisoes.map(d=>`<li>${escH(d)}</li>`).join("")}</ul>`:""}<details><summary>Transcrição (${(a.transcricao||[]).length} intervenções)</summary><div style="display:grid;gap:8px;margin-top:8px;font-size:.85rem">${(a.transcricao||[]).map(t=>`<div><b style="color:${t.quem==="tu"?"#5FE3FF":BYID[t.quem]?.cor}">${t.quem==="tu"?"Tu":BYID[t.quem]?.nome}</b><div class="md">${md(t.texto)}</div></div>`).join("")}</div></details><div><button class="btn sm ghost" data-del="${a.id}">Apagar ata</button></div></div>`).join("")
+   :`<div class="empty">Ainda não há atas. Cada reunião encerrada fica guardada aqui, com resumo, decisões e transcrição.</div>`);
+  v.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>Store.remove("atas",b.dataset.del));
+}
+
+/* ---- entregas ---- */
+let docOpen=null;
+function openDoc(t){const a=BYID[t.agente]||BYID.atlas;docOpen=t;$("mAv").style.background=a.cor;$("mAv").textContent=a.nome[0];$("mTitle").textContent=t.titulo;$("mSub").textContent=t.sub||`Entregue por ${a.nome} · ${a.cargo}`;$("mBody").innerHTML=t.loading&&!t.resultado?'<span class="thinking">A escrever…</span>':md(t.resultado||"");$("mSave").hidden=!DL;$("mApprove").hidden=!(t.id&&(t.estado==="revisao"||t.estado==="feito"));$("mLib").hidden=!(t.resultado&&!t.libItem);$("modal").hidden=false;$("mClose").focus();}
+$("mClose").onclick=()=>{$("modal").hidden=true;docOpen=null;};
+$("modal").addEventListener("click",e=>{if(e.target.id==="modal")$("mClose").click();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modal").hidden)$("mClose").click();});
+$("mCopy").onclick=async()=>{try{await navigator.clipboard.writeText(docOpen?.resultado||"");$("mCopy").textContent="Copiado";}catch{const r=document.createRange();r.selectNodeContents($("mBody"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("mCopy").textContent="Texto selecionado";}setTimeout(()=>$("mCopy").textContent="Copiar",1800);};
+$("mSave").onclick=async()=>{if(!DL||!docOpen)return;const name=docOpen.titulo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").slice(0,50)+".md";try{await DL.save({filename:name,data:docOpen.resultado||""});}catch{}};
+
+/* ---- relógio e ecrã ---- */
+function wallStats(){
+  const open=state.tarefas.filter(t=>!["feito","revisao","aprovado"].includes(t.estado)).length,done=state.tarefas.filter(t=>t.estado==="aprovado").length;
+  wall.l2.textContent=state.meeting?`EM REUNIÃO · ${cut(state.meeting.topic||"a reunir a equipa",34)}`:`8 AGENTES ONLINE · ${open} TAREFAS ABERTAS`;
+  wall.l3.textContent=`${done} entregas concluídas · ${state.atas.length} atas`;
+}
+function tick(){const d=new Date();$("clock").textContent=d.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});wallStats();}
+setInterval(tick,15000);tick();
+
+/* ---- modo ---- */
+function setTier(t){state.tier=t;LS.set("tier",t);$("tierQuick").setAttribute("aria-pressed",String(t==="quick"));$("tierDeep").setAttribute("aria-pressed",String(t==="deep"));}
+$("tierQuick").onclick=()=>setTier("quick");$("tierDeep").onclick=()=>setTier("deep");setTier(state.tier);
+
+/* ---- arranque ---- */
+/* ============ BACK OFFICE ============ */
+const MODS=["painel","pedidos","clientes","projetos","aprovacoes","escritorio"];
+state.mod="painel";state.sel={cliente:null,projeto:null};state.fCli="todos";state.fProj="ativos";state.qCli="";state.anaBusy={};state.reviewing={};state.act=LS.get("act",[]);
+function act(txt,who){state.act.unshift({txt,who,em:Date.now()});state.act=state.act.slice(0,40);LS.set("act",state.act);}
+function showMod(m){
+  state.mod=m;MODS.forEach(k=>$("m-"+k).hidden=k!==m);
+  $("nav").querySelectorAll("button").forEach(b=>b.setAttribute("aria-current",b.dataset.mod===m?"page":"false"));
+  if(m==="escritorio")AG.forEach(a=>a.bubText=null);
+  render();const box=$("m-"+m);if(box)box.scrollTop=0;
+}
+$("nav").querySelectorAll("button").forEach(b=>b.onclick=()=>{if(b.dataset.mod==="clientes")state.sel.cliente=null;if(b.dataset.mod==="projetos")state.sel.projeto=null;showMod(b.dataset.mod);});
+
+/* ---- utilitários ---- */
+const EST={afazer:["A fazer","#8792B3"],curso:["Em curso","#5B78FF"],revisao:["Por aprovar","#F2B705"],feito:["Por aprovar","#F2B705"],alteracoes:["Em alteração","#FF6B2C"],aprovado:["Aprovado","#46D08C"],
+  novo:["Novo","#5FE3FF"],analisado:["Analisado","#9B7BFF"],aceite:["Aceite","#46D08C"],recusado:["Recusado","#8792B3"],
+  lead:["Lead","#5FE3FF"],proposta:["Proposta","#F2B705"],ativo:["Ativo","#46D08C"],concluido:["Concluído","#8792B3"],
+  planeamento:["Planeamento","#9B7BFF"],execucao:["Em execução","#5B78FF"],entregue:["Entregue","#46D08C"]};
+const pill=k=>{const e=EST[k]||[k,"#8792B3"];return `<span class="pill" style="--pc:${e[1]}">${e[0]}</span>`;};
+const eur=n=>(Number(n)||0).toLocaleString("pt-PT",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+const fdate=d=>d?new Date(d).toLocaleDateString("pt-PT",{day:"2-digit",month:"short"}):"—";
+const isoDay=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10);};
+const today=()=>isoDay(new Date());
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return isoDay(d);};
+const daysTo=s=>s?Math.round((new Date(s+"T00:00:00")-new Date(today()+"T00:00:00"))/864e5):null;
+const PAL=["#FF6B2C","#E94BA0","#9B7BFF","#3D8BFF","#14C2B0","#F2B705","#4CC36B","#5FE3FF"];
+const colorFor=s=>{let h=0;for(const ch of String(s))h=(h*31+ch.charCodeAt(0))>>>0;return PAL[h%PAL.length];};
+const porAprovar=()=>state.tarefas.filter(t=>t.estado==="revisao"||t.estado==="feito");
+const projTasks=pid=>state.tarefas.filter(t=>t.projetoId===pid);
+const progresso=pid=>{const l=projTasks(pid);return l.length?Math.round(l.filter(t=>t.estado==="aprovado").length/l.length*100):0;};
+const cliente=id=>state.clientes.find(c=>c.id===id);
+const projeto=id=>state.projetos.find(p=>p.id===id);
+const ativos=()=>state.projetos.filter(p=>p.estado!=="entregue");
+const SERVS=["Website","Loja online","Aplicação móvel","Software à medida","Marketing digital","Sourcing de fornecedores","Outro"];
+function contexto(t){
+  if(!t.projetoId)return "";const p=projeto(t.projetoId);if(!p)return "";const c=cliente(p.clienteId);
+  return `\n\nCONTEXTO DO PROJETO\nProjeto: ${p.nome} (${p.servico||"—"})\nDescrição: ${p.descricao||"—"}\nPrazo: ${p.prazo||"—"} · Orçamento: ${p.orcamento?eur(p.orcamento):"—"}`+
+    (c?`\nCliente: ${c.nome}${c.empresa?" ("+c.empresa+")":""}${c.setor?", setor "+c.setor:""}\nMemória do cliente:\n${(c.memoria||[]).slice(-12).map(m=>"- "+m.facto).join("\n")||"- (vazia)"}`:"");
+}
+async function addMem(c,facto,origem){const mem=[...(c.memoria||[]),{facto:String(facto).slice(0,400),origem,data:Date.now()}].slice(-60);await Store.update("clientes",c.id,{memoria:mem});}
+
+/* ---- tarefas: execução, revisão, aprovação ---- */
+async function runTask(t,feedback){
+  const a=BYID[t.agente]||BYID.atlas;if(state.busy[t.id])return;
+  state.busy[t.id]=true;a.working=t.titulo;
+  if(!state.meeting&&!a.coffee)goTo(a,"seat:"+a.id);
+  await Store.update("tarefas",t.id,{estado:"curso",erro:""});render();
+  const fb=feedback?`\n\nVERSÃO ANTERIOR (o fundador pediu alterações):\n${(t.resultado||"").slice(0,6000)}\n\nALTERAÇÕES PEDIDAS: ${feedback}\nRefaz o entregável completo aplicando estas alterações.`:"";
+  try{
+    const prompt=`${persona(a)}${contexto(t)}\n\nPara esta tarefa ignora o limite de palavras de conversa.\nTarefa atribuída a ti: "${t.titulo}".\nDetalhe: ${t.detalhe||"(sem detalhe)"}${t.origem?`\nOrigem: ${t.origem}.`:""}${fb}\n\nProduz o entregável completo em Markdown, pronto a usar. Começa com um título (#). Se faltar informação, assume o mínimo razoável e diz o que assumiste. Termina com a secção "Perguntas em aberto". Máximo de 650 palavras.`;
+    const {text}=await ask(prompt,{tier:"default"});
+    await Store.update("tarefas",t.id,{estado:"revisao",resultado:text.slice(0,60000),feitaEm:Date.now(),revisao:null,custo:{in:(t.custo?.in||0)+prompt.length,out:(t.custo?.out||0)+text.length}});
+    act(`entregou «${t.titulo}» para aprovação`,a.id);
+    sentinel({...t,resultado:text});
+  }catch(e){await Store.update("tarefas",t.id,{estado:feedback?"alteracoes":"afazer",erro:errMsg(e)});}
+  delete state.busy[t.id];a.working=null;render();
+}
+async function sentinel(t){
+  const s=BYID.sentinel;state.reviewing[t.id]=true;s.working="rever «"+t.titulo+"»";render();
+  try{
+    if(!S)throw {code:"unavailable"};
+    const r=await S.json(`${persona(s)}${contexto(t)}\n\nRevê este entregável do agente ${BYID[t.agente]?.nome||"?"} para a tarefa "${t.titulo}".\n\nENTREGÁVEL:\n${(t.resultado||"").slice(0,12000)}\n\nResponde só com JSON: {"nota": número inteiro de 1 a 10, "resumo": "1 frase", "problemas": ["até 4 problemas concretos; lista vazia se não houver"]}`,{cache:false,modelTier:"quick"});
+    await Store.update("tarefas",t.id,{revisao:{nota:Math.max(1,Math.min(10,Math.round(Number(r?.nota)||1))),resumo:String(r?.resumo||"").slice(0,300),problemas:(Array.isArray(r?.problemas)?r.problemas:[]).map(String).slice(0,4)}});
+    act(`reviu «${t.titulo}»`,"sentinel");
+  }catch(e){}
+  delete state.reviewing[t.id];s.working=null;render();
+}
+async function aprovar(t){
+  await Store.update("tarefas",t.id,{estado:"aprovado",aprovadaEm:Date.now()});act(`Aprovaste «${t.titulo}»`,"tu");
+  const p=t.projetoId&&projeto(t.projetoId);
+  if(p){const c=cliente(p.clienteId);if(c)await addMem(c,`Entrega aprovada: ${t.titulo}`,"aprovação");if(p.estado==="planeamento")await Store.update("projetos",p.id,{estado:"execucao"});}
+}
+async function alterar(t,txt){await Store.update("tarefas",t.id,{estado:"alteracoes",feedback:txt.slice(0,1500),alteracoesN:(t.alteracoesN||0)+1});act(`Pediste alterações a «${t.titulo}»`,"tu");runTask({...t,estado:"alteracoes"},txt);}
+function taskCard(t){
+  const a=BYID[t.agente]||BYID.atlas;const busy=state.busy[t.id];const p=t.projetoId&&projeto(t.projetoId);const rv=t.revisao;let acts="";
+  if(busy)acts=`<span class="thinking">${a.nome} a trabalhar…</span>`;
+  else if(t.estado==="revisao"||t.estado==="feito")acts=`<button class="btn sm" data-a="ver" data-id="${t.id}">Ver</button><button class="btn sm primary" data-a="ok" data-id="${t.id}">Aprovar</button>`;
+  else if(t.estado==="aprovado")acts=`<button class="btn sm" data-a="ver" data-id="${t.id}">Ver entrega</button><button class="btn sm ghost" data-a="del" data-id="${t.id}" aria-label="Remover tarefa">✕</button>`;
+  else acts=`<button class="btn sm primary" data-a="run" data-id="${t.id}">${t.estado==="curso"?"Executar de novo":t.estado==="alteracoes"?"Refazer":"Executar"}</button><button class="btn sm ghost" data-a="del" data-id="${t.id}" aria-label="Remover tarefa">✕</button>`;
+  return `<div class="card" style="--c:${a.cor}"><b>${escH(t.titulo)}</b>${p&&state.mod!=="projetos"?`<p>Projeto: ${escH(p.nome)}</p>`:""}${t.detalhe?`<p>${escH(t.detalhe)}</p>`:""}${rv?`<p class="rv">Sentinel ${rv.nota}/10 · ${escH(rv.resumo)}</p>`:state.reviewing[t.id]?`<p class="thinking">Sentinel a rever…</p>`:""}${t.erro&&!["aprovado","revisao","feito"].includes(t.estado)?`<p style="color:#FFC7AE">${escH(t.erro)}</p>`:""}<div class="meta"><span class="tag"><i></i>${a.nome}</span><span class="acts">${acts}</span></div></div>`;
+}
+function bindTasks(v){v.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{const t=state.tarefas.find(x=>x.id===b.dataset.id);if(!t)return;const k=b.dataset.a;
+  if(k==="run")runTask(t,t.estado==="alteracoes"?t.feedback:undefined);else if(k==="del")Store.remove("tarefas",t.id);else if(k==="ver")openDoc(t);else if(k==="ok")aprovar(t);});}
+function renderTasks(){
+  const v=$("v-tarefas");const opts=AG.map(a=>`<option value="${a.id}">${a.nome}</option>`).join("");
+  const col=(ks,title)=>{const l=state.tarefas.filter(t=>ks.includes(t.estado));return `<div class="col"><h3>${title} · ${l.length}</h3>${l.length?l.map(taskCard).join(""):`<div class="empty">Nada aqui.</div>`}</div>`;};
+  v.innerHTML=`<div><p class="eyebrow">Quadro de tarefas</p><h2 style="margin-top:6px">O que a equipa tem em mãos</h2></div>
+  <form class="addform" id="addTask"><input type="text" id="tTitle" placeholder="Nova tarefa, ex.: Escrever bio do Instagram" aria-label="Título da tarefa"><select id="tAgent" aria-label="Agente">${opts}</select><button class="btn blue" type="submit">Criar</button></form>
+  ${!state.loaded?`<p class="thinking">A carregar tarefas…</p>`:state.loadErr?`<div class="note">Não foi possível carregar os dados guardados. Recarrega a página.</div>`:""}
+  ${state.loaded&&!state.tarefas.length?`<div class="empty">Ainda não há tarefas. Cria uma acima, aceita um pedido ou convoca uma reunião.</div>`:`<div class="cols">${col(["afazer","alteracoes"],"A fazer")}${col(["curso"],"Em curso")}${col(["revisao","feito"],"Por aprovar")}${col(["aprovado"],"Aprovado")}</div>`}`;
+  $("addTask").onsubmit=async e=>{e.preventDefault();const ti=$("tTitle").value.trim();if(!ti)return;const ag=$("tAgent").value;$("tTitle").value="";await Store.add("tarefas",{titulo:ti.slice(0,140),agente:ag,detalhe:"",estado:"afazer"});};
+  bindTasks(v);
+}
+
+/* ---- render de módulos ---- */
+function renderMod(){
+  const n=state.pedidos.filter(p=>p.estado==="novo"||p.estado==="analisado").length;
+  $("bPedidos").textContent=n||"";$("bAprov").textContent=porAprovar().length||"";$("bProjetos").textContent=ativos().length||"";$("apChip").hidden=!state.ap.on;if(portalP&&!$("portal").hidden)renderPortal();$("bProp").textContent=state.propostas.filter(x=>x.estado==="enviada").length+state.faturas.filter(f=>faturaEstado(f)==="vencida").length||"";
+  if(!state.mod||state.mod==="escritorio")return;
+  const box=$("m-"+state.mod);const ae=document.activeElement;
+  if(ae&&box.contains(ae)&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){state.dirty=true;return;}
+  state.dirty=false;const st=box.scrollTop;
+  ({painel:rPainel,pedidos:rPedidos,clientes:rClientes,projetos:rProjetos,aprovacoes:rAprov,propostas:rPropostas,biblioteca:rBiblioteca,metricas:rMetricas,definicoes:rDefinicoes})[state.mod]();
+  box.scrollTop=st;
+}
+setInterval(()=>{const ae=document.activeElement;const typing=ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName);
+  if(state.dirty&&!typing)renderMod();else if(state.mod==="painel"&&!typing)renderMod();},4000);
+function bindGo(v){v.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{const g=b.dataset.go;if(g==="projetos")state.sel.projeto=b.dataset.id||null;if(g==="clientes")state.sel.cliente=b.dataset.id||null;if(g==="propostas")state.sel.proposta=b.dataset.id||null;if(g==="biblioteca")state.sel.doc=b.dataset.id||null;showMod(g);});}
+const kpi=(k,n,l,alert)=>`<button class="kpi${alert?" alert":""}" data-go="${k}"><b>${n}</b><span>${l}</span></button>`;
+function projRow(p){const c=cliente(p.clienteId);const d=daysTo(p.prazo);const pr=progresso(p.id);
+  const pz=p.estado==="entregue"?"entregue":p.prazo?(d<0?`<span style="color:var(--signal)">${-d} dias de atraso</span>`:d===0?"entrega hoje":`faltam ${d} dias`):"sem prazo";
+  return `<button class="item" data-go="projetos" data-id="${p.id}"><span class="t"><b>${escH(p.nome)}</b><small>${c?escH(c.nome)+" · ":""}${pz}</small><span class="prog"><i style="width:${pr}%"></i></span></span><span class="pct">${pr}%</span></button>`;}
+
+/* ---- painel ---- */
+function rPainel(){
+  const v=$("m-painel");const h=new Date().getHours();const sau=h<6?"Boa noite":h<13?"Bom dia":h<20?"Boa tarde":"Boa noite";
+  const novos=state.pedidos.filter(p=>p.estado==="novo"||p.estado==="analisado");const apr=porAprovar();const at=ativos();
+  const atras=at.filter(p=>p.prazo&&daysTo(p.prazo)<0);const carteira=at.reduce((s,p)=>s+(Number(p.orcamento)||0),0);
+  const need=[...apr.map(t=>({k:"aprovacoes",t:`Aprovar: ${t.titulo}`,s:`${BYID[t.agente]?.nome||""}${t.revisao?` · Sentinel ${t.revisao.nota}/10`:""}`,c:BYID[t.agente]?.cor})),
+    ...novos.map(p=>({k:"pedidos",t:`Pedido de ${p.nome}`,s:`${p.servico} · ${p.estado==="novo"?"por analisar":"análise pronta, decide"}`,c:"#5FE3FF"})),
+    ...atras.map(p=>({k:"projetos",id:p.id,t:`Prazo ultrapassado: ${p.nome}`,s:`${-daysTo(p.prazo)} dias de atraso`,c:"#FF6B2C"})),
+    ...state.faturas.filter(f=>faturaEstado(f)==="vencida").map(f=>({k:"propostas",t:`Pagamento vencido: ${f.descricao}`,s:`${eur(comIva(f.valor))} · venceu há ${-daysTo(f.vencimento)} dias`,c:"#FF6B2C"})),
+    ...state.propostas.filter(x=>x.estado==="enviada"&&x.enviadaEm&&Date.now()-x.enviadaEm>5*864e5).map(x=>({k:"propostas",id:x.id,t:`Fazer follow-up: ${x.numero}`,s:`${x.titulo} · enviada há ${Math.floor((Date.now()-x.enviadaEm)/864e5)} dias`,c:"#F2B705"})),
+    ...state.tarefas.filter(t=>t.estado==="alteracoes"&&!state.busy[t.id]&&t.erro).map(t=>({k:"aprovacoes",t:`Alteração por refazer: ${t.titulo}`,s:t.erro,c:"#FF6B2C"}))];
+  const brief=LS.get("brief",null);
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">${new Date().toLocaleDateString("pt-PT",{weekday:"long",day:"numeric",month:"long"})}</p><h1>${sau}. Aqui está o teu dia.</h1></div><div class="row-btns"><button class="btn" data-go="pedidos">+ Novo pedido</button><button class="btn primary" id="pMeet" type="button">Convocar reunião</button></div></div>
+  <div class="kpis">${kpi("pedidos",novos.length,"pedidos por tratar",novos.length>0)}${kpi("aprovacoes",apr.length,"entregas por aprovar",apr.length>0)}${kpi("projetos",at.length,"projetos ativos")}${kpi("projetos",atras.length,"projetos atrasados",atras.length>0)}${kpi("projetos",eur(carteira),"valor em carteira")}</div>
+  <div class="grid2">
+    <div class="box"><h3>Precisa de ti · ${need.length}</h3>${need.length?need.slice(0,8).map(n=>`<button class="item" data-go="${n.k}"${n.id?` data-id="${n.id}"`:""} style="--c:${n.c}"><span class="dot"></span><span class="t"><b>${escH(n.t)}</b><small>${escH(n.s)}</small></span><span class="arrow">→</span></button>`).join(""):`<div class="empty">Está tudo em dia. Pedidos novos e entregas por aprovar aparecem aqui.</div>`}</div>
+    <div class="box"><h3>Briefing do Atlas</h3><div class="md" id="briefBody">${brief?md(brief.text):`<p class="muted">O Atlas resume o estado da agência e diz-te onde focar hoje.</p>`}</div>${brief?`<small class="muted">Gerado a ${new Date(brief.em).toLocaleString("pt-PT",{dateStyle:"short",timeStyle:"short"})}</small>`:""}<button class="btn sm" id="briefBtn" type="button" style="justify-self:start">${brief?"Atualizar briefing":"Gerar briefing de hoje"}</button></div>
+  </div>
+  <div class="grid2">
+    <div class="box"><h3>Projetos e prazos</h3>${at.length?[...at].sort((a,b)=>(a.prazo||"9999")<(b.prazo||"9999")?-1:1).slice(0,6).map(projRow).join(""):`<div class="empty">Sem projetos ativos. Aceita um pedido para criar o primeiro.</div>`}</div>
+    <div class="box"><h3>Equipa agora</h3><div class="team-now">${AG.map(a=>`<button class="tn" data-chat="${a.id}" style="--c:${a.cor}"><span class="av">${a.nome[0]}</span><span class="t"><b>${a.nome}</b><small>${escH(status(a)||"em reunião")}</small></span></button>`).join("")}</div>
+    <h3 style="margin-top:8px">Atividade recente</h3>${state.act.length?`<ul class="actlist">${state.act.slice(0,8).map(x=>`<li><time>${new Date(x.em).toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"})}</time><span><b style="color:${whoColor(x.who)}">${whoName(x.who)}</b> ${escH(x.txt)}</span></li>`).join("")}</ul>`:`<p class="muted" style="font-size:.85rem;margin:0">Ainda sem atividade.</p>`}</div>
+  </div>`;
+  bindGo(v);$("pMeet").onclick=convene;$("briefBtn").onclick=briefing;
+  v.querySelectorAll("[data-chat]").forEach(b=>b.onclick=()=>openChat(b.dataset.chat));
+}
+async function briefing(){
+  const b=$("briefBtn");b.disabled=true;$("briefBody").innerHTML='<span class="thinking">O Atlas está a preparar o briefing…</span>';
+  const resumo=`Pedidos por tratar: ${state.pedidos.filter(p=>p.estado==="novo"||p.estado==="analisado").map(p=>`${p.nome} (${p.servico}, ${p.estado})`).join("; ")||"nenhum"}\nEntregas por aprovar: ${porAprovar().map(t=>t.titulo).join("; ")||"nenhuma"}\nProjetos ativos: ${ativos().map(p=>`${p.nome}, prazo ${p.prazo||"—"}, progresso ${progresso(p.id)}%, estado ${p.estado}`).join("; ")||"nenhum"}\nTarefas por fazer: ${state.tarefas.filter(t=>t.estado==="afazer").length}\nClientes registados: ${state.clientes.length}\nData de hoje: ${today()}`;
+  try{const {text}=await ask(`${persona(BYID.atlas)}\n\nPrepara o briefing do dia para o fundador com base neste estado real da agência:\n${resumo}\n\nFormato Markdown com 3 secções curtas: "## Hoje", "## Riscos" e "## Sugestão do Atlas". Até 150 palavras no total. Não inventes projetos, clientes nem números que não estejam acima; se a agência estiver vazia, sugere os primeiros passos para conseguir clientes.`,{tier:"quick"});
+    LS.set("brief",{text,em:Date.now()});act("preparou o briefing do dia","atlas");falar(text,"atlas");}
+  catch(e){$("briefBody").innerHTML=`<p class="muted">${escH(errMsg(e))}</p>`;b.disabled=false;return;}
+  renderMod();
+}
+
+/* ---- pedidos ---- */
+function rPedidos(){
+  const v=$("m-pedidos");const l=[...state.pedidos].reverse();
+  const open=l.filter(p=>p.estado==="novo"||p.estado==="analisado"),closed=l.filter(p=>p.estado==="aceite"||p.estado==="recusado");
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Entrada</p><h1>Pedidos</h1><p class="muted">Regista os pedidos que chegam pelo site, email ou WhatsApp. O Atlas analisa-os e prepara o projeto.</p></div></div>
+  <details class="box" ${open.length?"":"open"}><summary class="sum">+ Registar novo pedido</summary>
+    <form class="form-grid" id="reqForm" style="margin-top:14px">
+      <label class="f" for="rq-nome">Nome<input type="text" id="rq-nome" required></label>
+      <label class="f" for="rq-empresa">Empresa<input type="text" id="rq-empresa"></label>
+      <label class="f" for="rq-cont">Email ou telefone<input type="text" id="rq-cont"></label>
+      <label class="f" for="rq-serv">Serviço<select id="rq-serv">${SERVS.map(s=>`<option>${s}</option>`).join("")}</select></label>
+      <label class="f full" for="rq-msg">Mensagem do cliente<textarea id="rq-msg" rows="4" required placeholder="Cola aqui o pedido tal como chegou"></textarea></label>
+      <div class="full"><button class="btn primary" type="submit">Registar e analisar</button></div>
+    </form></details>
+  <div class="list">${open.length?open.map(reqCard).join(""):`<div class="empty">Sem pedidos por tratar.</div>`}</div>
+  ${closed.length?`<details class="box"><summary class="sum">Pedidos tratados · ${closed.length}</summary><div class="list" style="margin-top:14px">${closed.map(reqCard).join("")}</div></details>`:""}`;
+  $("reqForm").onsubmit=async e=>{e.preventDefault();const d={nome:$("rq-nome").value.trim(),empresa:$("rq-empresa").value.trim(),contacto:$("rq-cont").value.trim(),servico:$("rq-serv").value,mensagem:$("rq-msg").value.trim().slice(0,4000),estado:"novo"};
+    if(!d.nome||!d.mensagem)return;document.activeElement?.blur?.();const id=await Store.add("pedidos",d);act(`Registaste o pedido de ${d.nome}`,"tu");analisar({id,...d});};
+  v.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{const p=state.pedidos.find(x=>x.id===b.dataset.id);if(!p)return;const k=b.dataset.r;
+    if(k==="ana")analisar(p);else if(k==="ok")aceitar(p);else if(k==="no"){Store.update("pedidos",p.id,{estado:"recusado"});act(`Recusaste o pedido de ${p.nome}`,"tu");}
+    else if(k==="resp")resposta(p);else if(k==="proj"){state.sel.projeto=p.projetoId;showMod("projetos");}else if(k==="del")Store.remove("pedidos",p.id);});
+}
+function reqCard(p){
+  const a=p.analise;const busy=state.anaBusy[p.id];
+  const ana=busy?`<p class="thinking">O Atlas está a analisar o pedido…</p>`:a?`<div class="ana"><div class="ana-k"><span><small>Estimativa</small><b>${eur(a.min)} – ${eur(a.max)}</b></span><span><small>Prazo</small><b>${a.prazo} dias</b></span><span><small>Prioridade</small><b>${escH(a.prioridade||"—")}</b></span></div><p>${escH(a.resumo)}</p>${a.plano?.length?`<div><small class="muted">Plano proposto</small><ul>${a.plano.map(x=>`<li><b style="color:${BYID[x.agente]?.cor}">${BYID[x.agente]?.nome}</b> · ${escH(x.titulo)}</li>`).join("")}</ul></div>`:""}${a.perguntas?.length?`<div><small class="muted">Perguntas a fazer ao cliente</small><ul>${a.perguntas.map(q=>`<li>${escH(q)}</li>`).join("")}</ul></div>`:""}</div>`:p.erro?`<p style="color:#FFC7AE;font-size:.85rem;margin:0">${escH(p.erro)}</p>`:"";
+  let acts;
+  if(p.estado==="aceite")acts=`<button class="btn sm blue" data-r="proj" data-id="${p.id}">Abrir projeto</button>`;
+  else if(p.estado==="recusado")acts=`<button class="btn sm ghost" data-r="del" data-id="${p.id}">Apagar</button>`;
+  else if(busy)acts="";
+  else acts=`${a?`<button class="btn sm primary" data-r="ok" data-id="${p.id}">Aceitar e criar projeto</button><button class="btn sm" data-r="resp" data-id="${p.id}">Rascunho de resposta</button>`:""}<button class="btn sm${a?" ghost":" primary"}" data-r="ana" data-id="${p.id}">${a?"Analisar de novo":"Analisar com o Atlas"}</button><button class="btn sm ghost" data-r="no" data-id="${p.id}">Recusar</button>`;
+  return `<article class="req"><div class="req-h"><span class="t"><b>${escH(p.nome)}${p.empresa?` <span class="muted">· ${escH(p.empresa)}</span>`:""}</b><small>${escH(p.servico)} · ${fdate(p.criadaEm)}${p.contacto?" · "+escH(p.contacto):""}</small></span>${pill(p.estado)}</div><p class="req-msg">${escH(p.mensagem)}</p>${ana}<div class="row-btns">${acts}</div></article>`;
+}
+async function analisar(p){
+  state.anaBusy[p.id]=true;BYID.atlas.working="analisar pedido de "+p.nome;render();
+  try{
+    if(!S)throw {code:"unavailable"};
+    const r=await S.json(`${persona(BYID.atlas)}\n\nChegou um pedido de cliente. Analisa-o a pensar na equipa.\nCliente: ${p.nome}${p.empresa?" ("+p.empresa+")":""}\nServiço indicado: ${p.servico}\nMensagem:\n${p.mensagem}\n\nResponde só com JSON:\n{"resumo":"2 frases: o que o cliente quer e o que propomos","nome_projeto":"nome curto","min":número em euros sem IVA,"max":número em euros sem IVA,"prazo":número de dias,"prioridade":"alta, média ou baixa","perguntas":["até 4 perguntas a fazer ao cliente"],"plano":[{"titulo":"tarefa curta começada por um verbo","agente":"id","detalhe":"o que deve ser entregue"}]}\nUsa os preços de referência da agência. Cria 3 a 6 tarefas, cada uma para o especialista certo (ids: ${AG.map(a=>a.id).join(", ")}).`,{cache:false,modelTier:"default"});
+    const an={resumo:String(r?.resumo||""),nome:String(r?.nome_projeto||(p.servico+" · "+p.nome)).slice(0,80),min:Number(r?.min)||0,max:Number(r?.max)||0,prazo:Math.max(1,Math.round(Number(r?.prazo)||14)),prioridade:String(r?.prioridade||""),
+      perguntas:(Array.isArray(r?.perguntas)?r.perguntas:[]).map(String).slice(0,4),
+      plano:(Array.isArray(r?.plano)?r.plano:[]).filter(x=>x&&x.titulo).slice(0,6).map(x=>({titulo:String(x.titulo).slice(0,140),agente:BYID[x.agente]?x.agente:"atlas",detalhe:String(x.detalhe||"").slice(0,500)}))};
+    await Store.update("pedidos",p.id,{analise:an,estado:"analisado",erro:""});act(`analisou o pedido de ${p.nome}`,"atlas");
+  }catch(e){await Store.update("pedidos",p.id,{erro:errMsg(e)});}
+  delete state.anaBusy[p.id];BYID.atlas.working=null;render();
+}
+async function aceitar(p){
+  const a=p.analise;if(!a)return;
+  const c=state.clientes.find(x=>p.contacto&&x.contacto===p.contacto)||state.clientes.find(x=>x.nome.toLowerCase()===p.nome.toLowerCase());
+  let cid=c?.id;
+  if(!c)cid=await Store.add("clientes",{nome:p.nome,empresa:p.empresa||"",contacto:p.contacto||"",setor:"",notas:"",estado:"ativo",memoria:[{facto:`Primeiro pedido (${p.servico}): ${a.resumo}`,origem:"pedido",data:Date.now()}]});
+  else{await Store.update("clientes",c.id,{estado:"ativo"});await addMem(c,`Novo pedido (${p.servico}): ${a.resumo}`,"pedido");}
+  const pid=await Store.add("projetos",{nome:a.nome,clienteId:cid,servico:p.servico,estado:"planeamento",prazo:addDays(a.prazo),orcamento:a.max||a.min||0,descricao:p.mensagem.slice(0,2000)});
+  for(const t of a.plano)await Store.add("tarefas",{...t,estado:"afazer",projetoId:pid,origem:`projeto «${a.nome}»`});
+  await Store.update("pedidos",p.id,{estado:"aceite",clienteId:cid,projetoId:pid});
+  act(`Aceitaste o pedido de ${p.nome}: projeto criado com ${a.plano.length} tarefas`,"tu");
+  state.sel.projeto=pid;showMod("projetos");
+}
+async function resposta(p){
+  const l=BYID.ledger;l.working="responder a "+p.nome;render();
+  const doc={titulo:`Resposta a ${p.nome}`,agente:"ledger",resultado:"",sub:"Rascunho de email, revê antes de enviar",loading:true};openDoc(doc);
+  try{
+    const {text}=await ask(`${persona(l)}\n\nEscreve o rascunho de um email de resposta ao cliente ${p.nome}${p.empresa?" ("+p.empresa+")":""}, em nome da BigSolutions.\nPedido original:\n${p.mensagem}\n\nAnálise interna: ${p.analise?.resumo||""}\nEstimativa: ${eur(p.analise?.min)} a ${eur(p.analise?.max)} sem IVA, prazo de ${p.analise?.prazo||"?"} dias.\nPerguntas a fazer: ${(p.analise?.perguntas||[]).join(" | ")}\n\nTom profissional, caloroso e direto. Primeira linha: "Assunto: ...". Inclui agradecimento, o que propomos, intervalo de preço indicativo, as perguntas e o próximo passo (chamada de 20 minutos). Assina "Equipa BigSolutions". Até 220 palavras.`,
+      {tier:"default",onText:({text})=>{if(docOpen===doc){doc.resultado=text;$("mBody").innerHTML=md(text);}}});
+    doc.resultado=text;doc.loading=false;if(docOpen===doc)$("mBody").innerHTML=md(text);
+  }catch(e){if(docOpen===doc)$("mBody").innerHTML=`<p>${escH(errMsg(e))}</p>`;}
+  l.working=null;render();
+}
+
+/* ---- clientes ---- */
+function rClientes(){
+  const v=$("m-clientes");
+  if(state.sel.cliente){const c=cliente(state.sel.cliente);if(c)return rCliente(v,c);v.innerHTML='<p class="thinking">A abrir cliente…</p>';return;}
+  const q=state.qCli.toLowerCase(),f=state.fCli;
+  const l=state.clientes.filter(c=>(f==="todos"||c.estado===f)&&(!q||(c.nome+" "+(c.empresa||"")+" "+(c.setor||"")).toLowerCase().includes(q)));
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">CRM</p><h1>Clientes</h1></div><button class="btn primary" id="cNew" type="button">+ Novo cliente</button></div>
+  <div class="toolbar"><input type="text" id="cQ" placeholder="Procurar por nome, empresa ou setor" value="${escH(state.qCli)}" aria-label="Procurar clientes"><div class="filters">${["todos","lead","proposta","ativo","concluido"].map(k=>`<button type="button" data-f="${k}" aria-pressed="${f===k}">${k==="todos"?"Todos":EST[k][0]} <span>${k==="todos"?state.clientes.length:state.clientes.filter(c=>c.estado===k).length}</span></button>`).join("")}</div></div>
+  ${l.length?`<div class="cards">${l.map(c=>{const ps=state.projetos.filter(p=>p.clienteId===c.id);return `<button class="ccard" data-c="${c.id}"><span class="ccard-h"><span class="av" style="background:${colorFor(c.nome)}">${escH((c.nome[0]||"?").toUpperCase())}</span><span class="t"><b>${escH(c.nome)}</b><small>${escH(c.empresa||c.setor||"—")}</small></span>${pill(c.estado)}</span><small class="muted">${ps.length} projeto${ps.length===1?"":"s"} · ${(c.memoria||[]).length} memórias</small></button>`;}).join("")}</div>`
+    :`<div class="empty">${state.clientes.length?"Nenhum cliente corresponde à pesquisa.":"Ainda não há clientes. Aceita um pedido ou cria um cliente."}</div>`}`;
+  $("cQ").oninput=e=>{state.qCli=e.target.value;const pos=e.target.selectionStart;rClientes();const i=$("cQ");i.focus();i.setSelectionRange(pos,pos);};
+  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{state.fCli=b.dataset.f;rClientes();});
+  v.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{state.sel.cliente=b.dataset.c;rClientes();v.scrollTop=0;});
+  $("cNew").onclick=async()=>{const id=await Store.add("clientes",{nome:"Novo cliente",empresa:"",contacto:"",setor:"",notas:"",estado:"lead",memoria:[]});state.sel.cliente=id;renderMod();};
+}
+function rCliente(v,c){
+  const ps=state.projetos.filter(p=>p.clienteId===c.id),rq=state.pedidos.filter(p=>p.clienteId===c.id),mem=c.memoria||[];
+  v.innerHTML=`<button class="btn sm ghost" id="cBack" type="button">← Clientes</button>
+  <div class="mod-head"><div class="who-h"><span class="av lg" style="background:${colorFor(c.nome)}">${escH((c.nome[0]||"?").toUpperCase())}</span><div><h1>${escH(c.nome)}</h1><p class="muted">${escH(c.empresa||"")}${c.setor?" · "+escH(c.setor):""}</p></div></div>${pill(c.estado)}</div>
+  <div class="grid2">
+    <form class="box" id="cForm"><h3>Ficha</h3><div class="form-grid">
+      <label class="f" for="cf-nome">Nome<input type="text" id="cf-nome" value="${escH(c.nome)}" required></label>
+      <label class="f" for="cf-emp">Empresa<input type="text" id="cf-emp" value="${escH(c.empresa||"")}"></label>
+      <label class="f" for="cf-cont">Email ou telefone<input type="text" id="cf-cont" value="${escH(c.contacto||"")}"></label>
+      <label class="f" for="cf-set">Setor<input type="text" id="cf-set" value="${escH(c.setor||"")}"></label>
+      <label class="f" for="cf-est">Estado<select id="cf-est">${["lead","proposta","ativo","concluido"].map(k=>`<option value="${k}"${c.estado===k?" selected":""}>${EST[k][0]}</option>`).join("")}</select></label>
+      <label class="f full" for="cf-notas">Notas<textarea id="cf-notas" rows="3">${escH(c.notas||"")}</textarea></label>
+    </div><div class="row-btns"><button class="btn blue" type="submit">Guardar</button><button class="btn ghost" type="button" id="cDel">Apagar cliente</button></div></form>
+    <div class="box"><h3>Memória do cliente · ${mem.length}</h3><p class="muted" style="font-size:.85rem;margin:0">Os agentes leem esta memória sempre que trabalham num projeto deste cliente. As entregas aprovadas ficam registadas aqui.</p>
+      <form class="addform two" id="mForm"><input type="text" id="mFact" placeholder="Ex.: Prefere comunicar por WhatsApp" aria-label="Novo facto sobre o cliente"><button class="btn blue" type="submit">Lembrar</button></form>
+      <ul class="mem">${mem.length?mem.map((m,i)=>({m,i})).reverse().map(({m,i})=>`<li><span>${escH(m.facto)}</span><small>${escH(m.origem||"")} · ${fdate(m.data)}</small><button class="x" type="button" data-mi="${i}" aria-label="Esquecer este facto">✕</button></li>`).join(""):`<li class="muted">Ainda vazia.</li>`}</ul></div>
+  </div>
+  <div class="grid2">
+    <div class="box"><h3>Projetos · ${ps.length}</h3>${ps.length?ps.map(projRow).join(""):`<div class="empty">Sem projetos.</div>`}<button class="btn sm" id="cProj" type="button" style="justify-self:start">+ Novo projeto para este cliente</button></div>
+    <div class="box"><h3>Pedidos · ${rq.length}</h3>${rq.length?rq.map(p=>`<div class="item static"><span class="t"><b>${escH(p.servico)}</b><small>${fdate(p.criadaEm)} · ${escH(p.mensagem.slice(0,100))}</small></span>${pill(p.estado)}</div>`).join(""):`<div class="empty">Sem pedidos associados.</div>`}</div>
+  </div>`;
+  $("cBack").onclick=()=>{state.sel.cliente=null;rClientes();};
+  $("cForm").onsubmit=async e=>{e.preventDefault();document.activeElement?.blur?.();await Store.update("clientes",c.id,{nome:$("cf-nome").value.trim()||c.nome,empresa:$("cf-emp").value.trim(),contacto:$("cf-cont").value.trim(),setor:$("cf-set").value.trim(),estado:$("cf-est").value,notas:$("cf-notas").value.slice(0,3000)});act(`Atualizaste a ficha de ${c.nome}`,"tu");renderMod();};
+  const del=$("cDel");del.onclick=async()=>{if(del.dataset.sure){state.sel.cliente=null;await Store.remove("clientes",c.id);act(`Apagaste o cliente ${c.nome}`,"tu");renderMod();return;}del.dataset.sure="1";del.textContent="Confirmar: apagar";del.classList.add("danger");};
+  $("mForm").onsubmit=async e=>{e.preventDefault();const f=$("mFact").value.trim();if(!f)return;$("mFact").value="";document.activeElement?.blur?.();await addMem(c,f,"tu");renderMod();};
+  v.querySelectorAll("[data-mi]").forEach(b=>b.onclick=()=>{const m=[...mem];m.splice(Number(b.dataset.mi),1);Store.update("clientes",c.id,{memoria:m});});
+  bindGo(v);$("cProj").onclick=()=>newProject(c.id);
+}
+
+/* ---- projetos ---- */
+async function newProject(cid){const id=await Store.add("projetos",{nome:"Novo projeto",clienteId:cid||"",servico:"Website",estado:"planeamento",prazo:addDays(14),orcamento:0,descricao:""});state.sel.projeto=id;state.sel.cliente=null;state.openDetails=true;showMod("projetos");}
+function rProjetos(){
+  const v=$("m-projetos");
+  if(state.sel.projeto){const p=projeto(state.sel.projeto);if(p)return rProjeto(v,p);v.innerHTML='<p class="thinking">A abrir projeto…</p>';return;}
+  const f=state.fProj;const l=state.projetos.filter(p=>f==="todos"||(f==="ativos"?p.estado!=="entregue":p.estado===f));
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Produção</p><h1>Projetos</h1></div><button class="btn primary" id="pNew" type="button">+ Novo projeto</button></div>
+  <div class="toolbar"><div class="filters">${[["ativos","Ativos"],["planeamento","Planeamento"],["execucao","Em execução"],["entregue","Entregues"],["todos","Todos"]].map(([k,n])=>`<button type="button" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join("")}</div></div>
+  ${l.length?`<div class="cards">${l.map(p=>{const c=cliente(p.clienteId);const pr=progresso(p.id);const d=daysTo(p.prazo);const ts=projTasks(p.id);const ra=ts.filter(t=>t.estado==="revisao"||t.estado==="feito").length;
+    return `<button class="ccard" data-p="${p.id}"><span class="ccard-h"><span class="t"><b>${escH(p.nome)}</b><small>${c?escH(c.nome):"Sem cliente"} · ${escH(p.servico||"")}</small></span>${pill(p.estado)}</span><span class="prog"><i style="width:${pr}%"></i></span><span class="ccard-f"><span>${pr}% · ${ts.length} tarefas${ra?` · <b style="color:var(--warn)">${ra} por aprovar</b>`:""}</span><span${d!==null&&d<0&&p.estado!=="entregue"?' style="color:var(--signal)"':""}>${p.prazo?fdate(p.prazo+"T00:00:00"):"sem prazo"}</span></span></button>`;}).join("")}</div>`
+    :`<div class="empty">${state.projetos.length?"Sem projetos neste filtro.":"Ainda não há projetos. Aceita um pedido ou cria um projeto."}</div>`}`;
+  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{state.fProj=b.dataset.f;rProjetos();});
+  v.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{state.sel.projeto=b.dataset.p;rProjetos();v.scrollTop=0;});
+  $("pNew").onclick=()=>newProject(null);
+}
+function rProjeto(v,p){
+  const c=cliente(p.clienteId);const ts=projTasks(p.id);const pr=progresso(p.id);const allOk=ts.length>0&&ts.every(t=>t.estado==="aprovado");const d=daysTo(p.prazo);
+  const col=(ks,title)=>{const l=ts.filter(t=>ks.includes(t.estado));return `<div class="col"><h3>${title} · ${l.length}</h3>${l.length?l.map(taskCard).join(""):`<div class="empty">—</div>`}</div>`;};
+  const open=state.openDetails;state.openDetails=false;
+  v.innerHTML=`<button class="btn sm ghost" id="pBack" type="button">← Projetos</button>
+  <div class="mod-head"><div><p class="eyebrow">${c?`<button class="link" data-go="clientes" data-id="${c.id}">${escH(c.nome)}</button>`:"Sem cliente"} · ${escH(p.servico||"")}</p><h1>${escH(p.nome)}</h1></div><div class="row-btns">${pill(p.estado)}<button class="btn" id="pPortal" type="button">Portal do cliente</button><button class="btn" id="pProp" type="button">${state.propostas.some(x=>x.projetoId===p.id&&x.estado!=="recusada")?"Ver proposta":"Criar proposta"}</button>${p.estado!=="entregue"?`<button class="btn${allOk?" primary":""}" id="pDone" type="button"${allOk?"":" disabled title=\"Aprova todas as tarefas primeiro\""}>Marcar como entregue</button>`:""}</div></div>
+  <div class="kpis small">
+    <div class="kpi static"><b>${pr}%</b><span>concluído</span><span class="prog"><i style="width:${pr}%"></i></span></div>
+    <div class="kpi static"><b>${ts.length}</b><span>tarefas</span></div>
+    <div class="kpi static${d!==null&&d<0&&p.estado!=="entregue"?" alert":""}"><b>${p.prazo?(p.estado==="entregue"?"✓":d<0?`${-d}d`:`${d}d`):"—"}</b><span>${p.estado==="entregue"?"entregue":p.prazo?(d<0?"de atraso":"até ao prazo"):"sem prazo"}</span></div>
+    <div class="kpi static"><b>${eur(p.orcamento)}</b><span>orçamento</span></div>
+  </div>
+  <details class="box" ${open?"open":""} style="margin-top:16px"><summary class="sum">Detalhes do projeto</summary>
+    <form id="pForm" style="display:grid;gap:12px;margin-top:14px"><div class="form-grid three">
+      <label class="f" for="pf-nome">Nome<input type="text" id="pf-nome" value="${escH(p.nome)}"></label>
+      <label class="f" for="pf-cli">Cliente<select id="pf-cli"><option value="">Sem cliente</option>${state.clientes.map(x=>`<option value="${x.id}"${x.id===p.clienteId?" selected":""}>${escH(x.nome)}</option>`).join("")}</select></label>
+      <label class="f" for="pf-serv">Serviço<select id="pf-serv">${SERVS.map(s=>`<option${s===p.servico?" selected":""}>${s}</option>`).join("")}</select></label>
+      <label class="f" for="pf-est">Estado<select id="pf-est">${["planeamento","execucao","entregue"].map(k=>`<option value="${k}"${p.estado===k?" selected":""}>${EST[k][0]}</option>`).join("")}</select></label>
+      <label class="f" for="pf-prazo">Prazo<input type="date" id="pf-prazo" value="${p.prazo||""}"></label>
+      <label class="f" for="pf-orc">Orçamento (€, sem IVA)<input type="number" id="pf-orc" min="0" step="10" value="${Number(p.orcamento)||0}"></label>
+      <label class="f full" for="pf-desc">Descrição e briefing<textarea id="pf-desc" rows="4">${escH(p.descricao||"")}</textarea></label>
+    </div><div class="row-btns"><button class="btn blue" type="submit">Guardar</button><button class="btn ghost" type="button" id="pDel">Apagar projeto</button></div></form>
+  </details>
+  <div class="box" style="margin-top:16px"><h3>Tarefas</h3>
+    <form class="addform" id="ptForm"><input type="text" id="pt-t" placeholder="Nova tarefa para este projeto" aria-label="Nova tarefa"><select id="pt-a" aria-label="Agente">${AG.map(a=>`<option value="${a.id}">${a.nome}</option>`).join("")}</select><button class="btn blue" type="submit">Criar</button></form>
+    <div class="row-btns">${state.planBusy===p.id?`<span class="thinking">O Atlas está a planear as tarefas…</span>`:`<button class="btn sm${ts.length?"":" primary"}" id="pPlan" type="button">${ts.length?"Pedir mais tarefas ao Atlas":"Planear tarefas com o Atlas"}</button>`}${ts.some(t=>t.estado==="afazer"&&!state.busy[t.id])?`<button class="btn sm" id="pRunAll" type="button">Executar todas as tarefas por fazer</button>`:""}</div>
+    ${ts.length?`<div class="cols">${col(["afazer","alteracoes"],"A fazer")}${col(["curso"],"Em curso")}${col(["revisao","feito"],"Por aprovar")}${col(["aprovado"],"Aprovado")}</div>`:`<div class="empty">Sem tarefas. Cria uma acima ou pede ao Atlas que planeie o projeto a partir da descrição.</div>`}
+  </div>`;
+  bindGo(v);bindTasks(v);
+  $("pProp").onclick=()=>propostaDoProjeto(p);
+  $("pPortal").onclick=()=>openPortal(p);
+  $("pBack").onclick=()=>{state.sel.projeto=null;rProjetos();};
+  if($("pDone"))$("pDone").onclick=async()=>{await Store.update("projetos",p.id,{estado:"entregue",entregueEm:Date.now()});act(`Entregaste o projeto «${p.nome}»`,"tu");if(c){await addMem(c,`Projeto entregue: ${p.nome}`,"projeto");}};
+  $("pForm").onsubmit=async e=>{e.preventDefault();document.activeElement?.blur?.();await Store.update("projetos",p.id,{nome:$("pf-nome").value.trim()||p.nome,clienteId:$("pf-cli").value,servico:$("pf-serv").value,estado:$("pf-est").value,prazo:$("pf-prazo").value,orcamento:Math.max(0,Number($("pf-orc").value)||0),descricao:$("pf-desc").value.slice(0,4000)});act(`Atualizaste o projeto «${p.nome}»`,"tu");renderMod();};
+  const del=$("pDel");del.onclick=async()=>{if(del.dataset.sure){state.sel.projeto=null;for(const t of ts)await Store.remove("tarefas",t.id);await Store.remove("projetos",p.id);act(`Apagaste o projeto «${p.nome}»`,"tu");renderMod();return;}del.dataset.sure="1";del.textContent="Confirmar: apagar com as tarefas";del.classList.add("danger");};
+  $("ptForm").onsubmit=async e=>{e.preventDefault();const ti=$("pt-t").value.trim();if(!ti)return;$("pt-t").value="";document.activeElement?.blur?.();await Store.add("tarefas",{titulo:ti.slice(0,140),agente:$("pt-a").value,detalhe:"",estado:"afazer",projetoId:p.id,origem:`projeto «${p.nome}»`});};
+  if($("pPlan"))$("pPlan").onclick=()=>planear(p);
+  if($("pRunAll"))$("pRunAll").onclick=async()=>{for(const t of projTasks(p.id).filter(t=>t.estado==="afazer"))await runTask(t);};
+}
+async function planear(p){
+  state.planBusy=p.id;BYID.atlas.working="planear «"+p.nome+"»";render();
+  try{
+    if(!S)throw {code:"unavailable"};
+    const ex=projTasks(p.id).map(t=>t.titulo).join("; ")||"nenhuma";
+    const r=await S.json(`${persona(BYID.atlas)}${contexto({projetoId:p.id})}\n\nPlaneia as tarefas deste projeto. Tarefas que já existem: ${ex}.\nResponde só com JSON: {"tarefas":[{"titulo":"tarefa curta começada por um verbo","agente":"id","detalhe":"o que deve ser entregue"}]}\nCria 3 a 6 tarefas novas, sem repetir as existentes, cada uma para o especialista certo (ids: ${AG.map(a=>a.id).join(", ")}).`,{cache:false,modelTier:"default"});
+    const l=(Array.isArray(r?.tarefas)?r.tarefas:[]).filter(x=>x&&x.titulo).slice(0,6);
+    for(const x of l)await Store.add("tarefas",{titulo:String(x.titulo).slice(0,140),agente:BYID[x.agente]?x.agente:"atlas",detalhe:String(x.detalhe||"").slice(0,500),estado:"afazer",projetoId:p.id,origem:`projeto «${p.nome}»`});
+    act(`planeou ${l.length} tarefas para «${p.nome}»`,"atlas");
+  }catch(e){act(`não conseguiu planear «${p.nome}»: ${errMsg(e)}`,"atlas");}
+  state.planBusy=null;BYID.atlas.working=null;render();
+}
+
+/* ---- aprovações ---- */
+function rAprov(){
+  const v=$("m-aprovacoes");const l=porAprovar().sort((a,b)=>(a.feitaEm||0)-(b.feitaEm||0));const alt=state.tarefas.filter(t=>t.estado==="alteracoes");
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Controlo de qualidade</p><h1>Aprovações</h1><p class="muted">Nada sai para o cliente sem passar por aqui. O Sentinel revê primeiro e a decisão final é tua.</p></div></div>
+  <div class="list">${l.length?l.map(t=>{const a=BYID[t.agente]||BYID.atlas;const p=t.projetoId&&projeto(t.projetoId);const c=p&&cliente(p.clienteId);const rv=t.revisao;const sc=rv?.nota;const col=sc>=8?"var(--ok)":sc>=6?"var(--warn)":"var(--signal)";
+    return `<article class="appr" style="--c:${a.cor}"><div class="appr-score" style="--sc:${rv?col:"var(--muted)"}">${rv?`<b>${sc}</b><small>/10</small>`:state.reviewing[t.id]?`<small class="thinking">a rever</small>`:`<small>sem nota</small>`}</div>
+    <div class="t"><b>${escH(t.titulo)}</b><small><span style="color:${a.cor}">${a.nome}</span>${p?` · ${escH(p.nome)}`:""}${c?` · ${escH(c.nome)}`:""} · ${fdate(t.feitaEm)}</small>
+    ${rv?`<p>${escH(rv.resumo)}</p>${rv.problemas?.length?`<ul>${rv.problemas.map(x=>`<li>${escH(x)}</li>`).join("")}</ul>`:""}`:""}
+    <form class="chg" data-chg="${t.id}" hidden><textarea rows="2" placeholder="O que deve mudar? O ${a.nome} refaz com base nisto." aria-label="Alterações pedidas"></textarea><div class="row-btns"><button class="btn sm primary" type="submit">Enviar ao ${a.nome}</button><button class="btn sm ghost" type="button" data-cancel>Cancelar</button></div></form>
+    <div class="row-btns"><button class="btn sm" type="button" data-x="ver" data-id="${t.id}">Ler entrega</button><button class="btn sm primary" type="button" data-x="ok" data-id="${t.id}">Aprovar</button><button class="btn sm" type="button" data-x="chg" data-id="${t.id}">Pedir alterações</button>${!rv&&!state.reviewing[t.id]?`<button class="btn sm ghost" type="button" data-x="rev" data-id="${t.id}">Pedir nota ao Sentinel</button>`:""}</div></div></article>`;}).join("")
+    :`<div class="empty">Nada por aprovar. Quando um agente terminar uma tarefa, a entrega aparece aqui com a nota do Sentinel.</div>`}</div>
+  ${alt.length?`<div class="box" style="margin-top:16px"><h3>Em alteração · ${alt.length}</h3>${alt.map(t=>`<div class="item static"><span class="t"><b>${escH(t.titulo)}</b><small>${state.busy[t.id]?`${BYID[t.agente]?.nome} a refazer…`:escH(t.erro||"à espera de ser refeita")}</small></span>${state.busy[t.id]?"":`<button class="btn sm" type="button" data-x="redo" data-id="${t.id}">Refazer</button>`}</div>`).join("")}</div>`:""}`;
+  v.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const t=state.tarefas.find(x=>x.id===b.dataset.id);if(!t)return;const k=b.dataset.x;
+    if(k==="ver")openDoc(t);else if(k==="ok")aprovar(t);else if(k==="rev")sentinel(t);else if(k==="redo")runTask(t,t.feedback);
+    else if(k==="chg"){const f=v.querySelector(`[data-chg="${t.id}"]`);f.hidden=false;f.querySelector("textarea").focus();}});
+  v.querySelectorAll("[data-chg]").forEach(f=>{f.querySelector("[data-cancel]").onclick=()=>{f.hidden=true;document.activeElement?.blur?.();};
+    f.onsubmit=e=>{e.preventDefault();const txt=f.querySelector("textarea").value.trim();if(!txt)return;const t=state.tarefas.find(x=>x.id===f.dataset.chg);document.activeElement?.blur?.();if(t)alterar(t,txt);};});
+}
+$("mApprove").onclick=async()=>{const t=docOpen;$("mClose").click();if(t&&t.id)await aprovar(t);};
+/* ============ FASE 2: PROPOSTAS, FATURAÇÃO, BIBLIOTECA, MÉTRICAS ============ */
+MODS.push("propostas","biblioteca","metricas");
+state.sel.proposta=null;state.sel.doc=null;state.finTab="propostas";state.fLib="todos";state.qLib="";state.genBusy=null;state.libGen=false;
+const IVA=0.23;
+const PLANOS={"50/50":[["Adjudicação",50],["Entrega",50]],"30/40/30":[["Adjudicação",30],["A meio do projeto",40],["Entrega",30]],"100":[["Adjudicação",100]],"entrega":[["Entrega",100]]};
+const PLANO_N={"50/50":"50 % na adjudicação, 50 % na entrega","30/40/30":"30 % adjudicação, 40 % a meio, 30 % na entrega","100":"100 % na adjudicação","entrega":"100 % na entrega"};
+Object.assign(EST,{rascunho:["Rascunho","#8792B3"],enviada:["Enviada","#F2B705"],recusada:["Recusada","#8792B3"],por_emitir:["Por emitir","#9B7BFF"],emitida:["Emitida","#5B78FF"],paga:["Paga","#46D08C"],vencida:["Vencida","#FF6B2C"]});
+const TIPOS={modelo:"Modelo",contrato:"Contrato",processo:"Processo",marca:"Marca e regras",entrega:"Entrega"};
+const subtotal=pr=>(pr.itens||[]).reduce((s,i)=>s+(Number(i.qtd)||0)*(Number(i.preco)||0),0);
+const nextNum=(pre,list)=>{const y=new Date().getFullYear();const n=list.filter(x=>(x.numero||"").startsWith(`${pre}-${y}-`)).map(x=>Number(x.numero.split("-")[2])||0);return `${pre}-${y}-${String((n.length?Math.max(...n):0)+1).padStart(3,"0")}`;};
+const faturaEstado=f=>f.estado==="emitida"&&f.vencimento&&daysTo(f.vencimento)<0?"vencida":f.estado;
+const comIva=v=>(Number(v)||0)*(1+IVA);
+const monthKey=ms=>{const d=new Date(ms);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");};
+const tok=n=>Math.round((Number(n)||0)/4);
+
+/* ---- regras da casa lidas pelos agentes ---- */
+function casa(){const l=state.biblioteca.filter(d=>d.contexto).slice(0,3);if(!l.length)return "";
+  return "\n\nREGRAS DA CASA (documentos da biblioteca que deves seguir sempre)\n"+l.map(d=>`### ${d.titulo}\n${String(d.conteudo||"").slice(0,1500)}`).join("\n\n");}
+
+/* ---- propostas ---- */
+async function propostaDoProjeto(p){
+  const ex=state.propostas.find(x=>x.projetoId===p.id&&x.estado!=="recusada");
+  if(ex){state.sel.proposta=ex.id;state.finTab="propostas";showMod("propostas");return;}
+  const id=await Store.add("propostas",{numero:nextNum("PROP",state.propostas),titulo:p.nome,projetoId:p.id,clienteId:p.clienteId||"",itens:[{desc:p.servico||"Serviço",qtd:1,preco:Number(p.orcamento)||0}],plano:"50/50",validade:addDays(30),texto:"",estado:"rascunho"});
+  act(`Criaste uma proposta para «${p.nome}»`,"tu");state.sel.proposta=id;state.finTab="propostas";showMod("propostas");
+}
+function propDoc(pr){
+  const c=cliente(pr.clienteId),st=subtotal(pr);
+  const rows=(pr.itens||[]).map(i=>`| ${i.desc} | ${i.qtd} | ${eur(i.preco)} | ${eur((Number(i.qtd)||0)*(Number(i.preco)||0))} |`).join("\n");
+  return `# Proposta ${pr.numero}\n\n**${pr.titulo}**  \nPara: ${c?c.nome+(c.empresa?" · "+c.empresa:""):"—"}  \nData: ${new Date(pr.criadaEm||Date.now()).toLocaleDateString("pt-PT")} · Válida até ${pr.validade?new Date(pr.validade+"T00:00:00").toLocaleDateString("pt-PT"):"—"}\n\n${pr.texto||""}\n\n## Orçamento\n\n| Item | Qtd | Preço | Total |\n|---|---|---|---|\n${rows}\n\n**Subtotal:** ${eur(st)}  \n**IVA (23 %):** ${eur(st*IVA)}  \n**Total:** ${eur(st*(1+IVA))}\n\n## Condições de pagamento\n\n${(PLANOS[pr.plano]||[]).map(([d,p])=>`- ${d}: ${p} % (${eur(comIva(st*p/100))} com IVA)`).join("\n")}\n\nEquipa BigSolutions`;
+}
+async function gerarProposta(pr){
+  const p=projeto(pr.projetoId);state.genBusy=pr.id;BYID.ledger.working="proposta "+pr.numero;render();
+  try{
+    if(!S)throw {code:"unavailable"};
+    const modelo=state.biblioteca.find(d=>/proposta/i.test(d.titulo)&&d.tipo==="modelo");
+    const r=await S.json(`${persona(BYID.ledger)}${p?contexto({projetoId:p.id}):""}\n\nTarefas do projeto: ${p?projTasks(p.id).map(t=>t.titulo).join("; ")||"ainda sem tarefas":"—"}\n${modelo?`\nSegue esta estrutura da biblioteca:\n${String(modelo.conteudo).slice(0,1500)}\n`:""}\nEscreve a proposta comercial "${pr.titulo}". ${p?.orcamento?`O total sem IVA deve ficar perto de ${eur(p.orcamento)}.`:"Usa os preços de referência da agência."}\nResponde só com JSON:\n{"titulo":"curto","texto":"Markdown com as secções ## Contexto, ## Âmbito, ## Fases e prazos e ## Não incluído","itens":[{"desc":"item","qtd":número,"preco":número em euros sem IVA}],"plano":"50/50 ou 30/40/30 ou 100 ou entrega"}\nUsa 2 a 6 itens.`,{cache:false,modelTier:"default"});
+    const itens=(Array.isArray(r?.itens)?r.itens:[]).filter(i=>i&&i.desc).slice(0,8).map(i=>({desc:String(i.desc).slice(0,140),qtd:Math.max(0,Number(i.qtd)||1),preco:Math.max(0,Number(i.preco)||0)}));
+    await Store.update("propostas",pr.id,{titulo:String(r?.titulo||pr.titulo).slice(0,120),texto:String(r?.texto||"").slice(0,8000),itens:itens.length?itens:pr.itens,plano:PLANOS[r?.plano]?r.plano:pr.plano});
+    act(`escreveu a proposta ${pr.numero}`,"ledger");
+  }catch(e){act(`não conseguiu escrever a proposta ${pr.numero}: ${errMsg(e)}`,"ledger");}
+  state.genBusy=null;BYID.ledger.working=null;render();
+}
+async function aceitarProposta(pr){
+  const st=subtotal(pr);const p=projeto(pr.projetoId);const c=cliente(pr.clienteId);
+  await Store.update("propostas",pr.id,{estado:"aceite",aceiteEm:Date.now()});
+  const prazo=p?.prazo||addDays(30);const meio=isoDay(new Date((Date.now()+new Date(prazo+"T00:00:00").getTime())/2));
+  for(const [d,pc] of PLANOS[pr.plano]||[])await Store.add("faturas",{descricao:`${pr.numero} · ${d} (${pc} %)`,propostaId:pr.id,projetoId:pr.projetoId||"",clienteId:pr.clienteId||"",valor:Math.round(st*pc)/100,estado:"por_emitir",vencimento:d==="Adjudicação"?addDays(7):d.startsWith("A meio")?meio:prazo});
+  if(p&&p.estado==="planeamento")await Store.update("projetos",p.id,{estado:"execucao"});
+  if(c){await Store.update("clientes",c.id,{estado:"ativo"});await addMem(c,`Aceitou a proposta ${pr.numero} (${eur(st)} sem IVA, ${PLANO_N[pr.plano]||""})`,"proposta");}
+  act(`Proposta ${pr.numero} aceite: ${(PLANOS[pr.plano]||[]).length} pagamentos criados`,"tu");
+}
+function rPropostas(){
+  const v=$("m-propostas");
+  if(state.sel.proposta){const pr=state.propostas.find(x=>x.id===state.sel.proposta);if(pr)return rProposta(v,pr);v.innerHTML='<p class="thinking">A abrir proposta…</p>';return;}
+  const tab=state.finTab;const fs=state.faturas.map(f=>({...f,est:faturaEstado(f)}));
+  const abertas=state.propostas.filter(x=>x.estado==="enviada");const dec=state.propostas.filter(x=>x.estado==="aceite"||x.estado==="recusada");
+  const taxa=dec.length?Math.round(state.propostas.filter(x=>x.estado==="aceite").length/dec.length*100)+"%":"—";
+  const mes=monthKey(Date.now());const fatMes=fs.filter(f=>f.emitidaEm&&monthKey(f.emitidaEm)===mes).reduce((s,f)=>s+f.valor,0);
+  const porReceber=fs.filter(f=>f.est==="emitida"||f.est==="vencida").reduce((s,f)=>s+comIva(f.valor),0);const venc=fs.filter(f=>f.est==="vencida").reduce((s,f)=>s+comIva(f.valor),0);
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Comercial</p><h1>Propostas e faturação</h1></div><div class="row-btns"><label class="f" for="npProj" style="min-width:220px">Nova proposta para<select id="npProj"><option value="">Escolhe um projeto…</option>${state.projetos.map(p=>`<option value="${p.id}">${escH(p.nome)}</option>`).join("")}</select></label></div></div>
+  <div class="kpis">${kpi("propostas",eur(abertas.reduce((s,x)=>s+subtotal(x),0)),`em ${abertas.length} proposta${abertas.length===1?"":"s"} enviada${abertas.length===1?"":"s"}`)}${kpi("propostas",taxa,"taxa de aceitação")}${kpi("propostas",eur(fatMes),"faturado este mês")}${kpi("propostas",eur(porReceber),"por receber (com IVA)")}${kpi("propostas",eur(venc),"vencido",venc>0)}</div>
+  <div class="filters" role="tablist"><button type="button" data-tab="propostas" aria-pressed="${tab==="propostas"}">Propostas <span>${state.propostas.length}</span></button><button type="button" data-tab="faturas" aria-pressed="${tab==="faturas"}">Faturação <span>${state.faturas.length}</span></button></div>
+  ${tab==="propostas"?(state.propostas.length?`<div class="list">${[...state.propostas].reverse().map(pr=>{const c=cliente(pr.clienteId);return `<button class="item" data-pr="${pr.id}"><span class="t"><b>${escH(pr.numero)} · ${escH(pr.titulo)}</b><small>${c?escH(c.nome)+" · ":""}${fdate(pr.criadaEm)}${pr.validade&&pr.estado==="enviada"?` · válida até ${fdate(pr.validade+"T00:00:00")}`:""}</small></span><span class="num">${eur(subtotal(pr))}</span>${pill(pr.estado)}</button>`;}).join("")}</div>`:`<div class="empty">Ainda não há propostas. Escolhe um projeto acima, ou abre um projeto e carrega em "Proposta".</div>`)
+   :rFaturas(fs)}`;
+  v.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{state.finTab=b.dataset.tab;rPropostas();});
+  v.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{state.sel.proposta=b.dataset.pr;rPropostas();v.scrollTop=0;});
+  $("npProj").onchange=e=>{const p=projeto(e.target.value);e.target.blur();if(p)propostaDoProjeto(p);};
+  bindFaturas(v);
+}
+function rProposta(v,pr){
+  const c=cliente(pr.clienteId),p=projeto(pr.projetoId),st=subtotal(pr),busy=state.genBusy===pr.id,ed=pr.estado==="rascunho"||pr.estado==="enviada";
+  v.innerHTML=`<button class="btn sm ghost" id="prBack" type="button">← Propostas</button>
+  <div class="mod-head"><div><p class="eyebrow">${escH(pr.numero)}${c?` · <button class="link" data-go="clientes" data-id="${c.id}">${escH(c.nome)}</button>`:""}${p?` · <button class="link" data-go="projetos" data-id="${p.id}">projeto</button>`:""}</p><h1>${escH(pr.titulo)}</h1></div><div class="row-btns">${pill(pr.estado)}<button class="btn" id="prDoc" type="button">Ver documento</button></div></div>
+  ${busy?`<div class="note">O Ledger está a escrever a proposta…</div>`:""}
+  <form class="box" id="prForm"><h3>Proposta</h3>
+    <div class="form-grid three">
+      <label class="f" for="pr-tit">Título<input type="text" id="pr-tit" value="${escH(pr.titulo)}"></label>
+      <label class="f" for="pr-val">Válida até<input type="date" id="pr-val" value="${pr.validade||""}"></label>
+      <label class="f" for="pr-plano">Pagamento<select id="pr-plano">${Object.keys(PLANOS).map(k=>`<option value="${k}"${pr.plano===k?" selected":""}>${PLANO_N[k]}</option>`).join("")}</select></label>
+    </div>
+    <div class="tbl-wrap"><table class="items"><thead><tr><th>Item</th><th class="n">Qtd</th><th class="n">Preço (€)</th><th class="n">Total</th><th></th></tr></thead><tbody id="prItems">${(pr.itens||[]).map((i,k)=>itemRow(i,k)).join("")}</tbody>
+    <tfoot><tr><td colspan="3">Subtotal</td><td class="n" id="prSub">${eur(st)}</td><td></td></tr><tr><td colspan="3">IVA 23 %</td><td class="n" id="prIva">${eur(st*IVA)}</td><td></td></tr><tr class="tot"><td colspan="3">Total</td><td class="n" id="prTot">${eur(st*(1+IVA))}</td><td></td></tr></tfoot></table></div>
+    <div><button class="btn sm" type="button" id="prAdd">+ Item</button></div>
+    <label class="f" for="pr-txt">Texto da proposta (Markdown)<textarea id="pr-txt" rows="9" placeholder="Contexto, âmbito, fases e prazos, o que não está incluído…">${escH(pr.texto||"")}</textarea></label>
+    <div class="row-btns"><button class="btn blue" type="submit">Guardar</button><button class="btn" type="button" id="prGen"${busy?" disabled":""}>${pr.texto?"Reescrever com o Ledger":"Escrever com o Ledger"}</button><span class="spacer"></span>
+      ${pr.estado==="rascunho"?`<button class="btn primary" type="button" id="prSend">Marcar como enviada</button>`:""}
+      ${pr.estado==="enviada"?`<button class="btn primary" type="button" id="prOk">Cliente aceitou</button><button class="btn" type="button" id="prNo">Cliente recusou</button>`:""}
+      <button class="btn ghost" type="button" id="prDel">Apagar</button></div>
+  </form>
+  ${pr.estado==="aceite"?`<div class="box"><h3>Pagamentos desta proposta</h3>${rFaturas(state.faturas.filter(f=>f.propostaId===pr.id).map(f=>({...f,est:faturaEstado(f)})),true)}</div>`:""}`;
+  bindGo(v);bindFaturas(v);
+  $("prBack").onclick=()=>{state.sel.proposta=null;rPropostas();};
+  const recalc=()=>{const its=readItems();const s=its.reduce((a,i)=>a+i.qtd*i.preco,0);$("prSub").textContent=eur(s);$("prIva").textContent=eur(s*IVA);$("prTot").textContent=eur(s*(1+IVA));v.querySelectorAll("[data-rowtot]").forEach((el,k)=>el.textContent=eur(its[k]?its[k].qtd*its[k].preco:0));};
+  v.querySelector("#prItems").addEventListener("input",recalc);
+  v.querySelectorAll("[data-delrow]").forEach(b=>b.onclick=async()=>{const its=readItems();its.splice(Number(b.dataset.delrow),1);await Store.update("propostas",pr.id,{itens:its});rPropostas();});
+  $("prAdd").onclick=async()=>{const its=readItems();its.push({desc:"",qtd:1,preco:0});await Store.update("propostas",pr.id,{itens:its});rPropostas();};
+  const save=async()=>{document.activeElement?.blur?.();await Store.update("propostas",pr.id,{titulo:$("pr-tit").value.trim()||pr.titulo,validade:$("pr-val").value,plano:$("pr-plano").value,itens:readItems(),texto:$("pr-txt").value.slice(0,8000)});};
+  $("prForm").onsubmit=async e=>{e.preventDefault();await save();act(`Guardaste a proposta ${pr.numero}`,"tu");renderMod();};
+  $("prGen").onclick=async()=>{await save();gerarProposta({...pr,itens:readItems()});};
+  $("prDoc").onclick=()=>openDoc({titulo:`Proposta ${pr.numero}`,agente:"ledger",resultado:propDoc({...pr,titulo:$("pr-tit")?.value||pr.titulo,itens:readItems(),plano:$("pr-plano")?.value||pr.plano,texto:$("pr-txt")?.value??pr.texto}),sub:"Documento pronto a copiar ou guardar"});
+  if($("prSend"))$("prSend").onclick=async()=>{await save();await Store.update("propostas",pr.id,{estado:"enviada",enviadaEm:Date.now()});if(c&&c.estado==="lead")await Store.update("clientes",c.id,{estado:"proposta"});act(`Enviaste a proposta ${pr.numero}`,"tu");};
+  if($("prOk"))$("prOk").onclick=async()=>{await save();await aceitarProposta({...pr,itens:readItems(),plano:$("pr-plano").value});};
+  if($("prNo"))$("prNo").onclick=async()=>{await Store.update("propostas",pr.id,{estado:"recusada"});if(c)await addMem(c,`Recusou a proposta ${pr.numero}`,"proposta");act(`Proposta ${pr.numero} recusada`,"tu");};
+  const del=$("prDel");del.onclick=async()=>{if(del.dataset.sure){state.sel.proposta=null;await Store.remove("propostas",pr.id);renderMod();return;}del.dataset.sure="1";del.textContent="Confirmar: apagar";del.classList.add("danger");};
+  if(!ed)v.querySelectorAll("#prForm input,#prForm select,#prForm textarea").forEach(el=>el.disabled=true);
+}
+function itemRow(i,k){return `<tr><td><input type="text" data-f="desc" value="${escH(i.desc||"")}" aria-label="Descrição do item ${k+1}"></td><td class="n"><input type="number" data-f="qtd" min="0" step="1" value="${Number(i.qtd)||0}" aria-label="Quantidade"></td><td class="n"><input type="number" data-f="preco" min="0" step="10" value="${Number(i.preco)||0}" aria-label="Preço"></td><td class="n" data-rowtot>${eur((Number(i.qtd)||0)*(Number(i.preco)||0))}</td><td><button class="x" type="button" data-delrow="${k}" aria-label="Remover item">✕</button></td></tr>`;}
+function readItems(){return [...document.querySelectorAll("#prItems tr")].map(tr=>({desc:tr.querySelector('[data-f="desc"]').value.trim(),qtd:Math.max(0,Number(tr.querySelector('[data-f="qtd"]').value)||0),preco:Math.max(0,Number(tr.querySelector('[data-f="preco"]').value)||0)})).filter(i=>i.desc||i.preco);}
+
+/* ---- faturação ---- */
+function rFaturas(fs,compact){
+  const grp=(ks,t)=>{const l=fs.filter(f=>ks.includes(f.est)).sort((a,b)=>(a.vencimento||"")<(b.vencimento||"")?-1:1);if(!l.length&&compact)return "";
+    return `<div class="col"><h3>${t} · ${l.length}</h3>${l.length?l.map(fatRow).join(""):`<div class="empty">—</div>`}</div>`;};
+  return `${compact?"":`<p class="muted" style="font-size:.85rem;margin:0">Emite as faturas num programa certificado pela AT (InvoiceXpress, Moloni ou Vendus) e regista aqui o número. Aceitar uma proposta cria os pagamentos automaticamente.</p>
+  <details class="box"><summary class="sum">+ Registar pagamento avulso (ex.: avença mensal)</summary><form class="form-grid" id="fNew" style="margin-top:12px">
+    <label class="f" for="fn-d">Descrição<input type="text" id="fn-d" required placeholder="Marketing · novembro"></label>
+    <label class="f" for="fn-c">Cliente<select id="fn-c"><option value="">—</option>${state.clientes.map(c=>`<option value="${c.id}">${escH(c.nome)}</option>`).join("")}</select></label>
+    <label class="f" for="fn-v">Valor sem IVA (€)<input type="number" id="fn-v" min="0" step="10" required></label>
+    <label class="f" for="fn-dt">Vencimento<input type="date" id="fn-dt" value="${addDays(15)}"></label>
+    <div class="full"><button class="btn blue" type="submit">Registar</button></div></form></details>`}
+  ${fs.length?`<div class="fat-cols">${grp(["por_emitir"],"Por emitir")}${grp(["emitida","vencida"],"Por receber")}${grp(["paga"],"Pagas")}</div>`:compact?"":`<div class="empty">Ainda não há pagamentos registados.</div>`}`;
+}
+function fatRow(f){const c=cliente(f.clienteId);const d=daysTo(f.vencimento);
+  let acts="";if(f.est==="por_emitir")acts=`<button class="btn sm" type="button" data-fe="${f.id}">Marcar emitida</button>`;else if(f.est==="emitida"||f.est==="vencida")acts=`<button class="btn sm primary" type="button" data-fp="${f.id}">Marcar paga</button>`;
+  return `<div class="card fat" style="--c:${EST[f.est][1]}"><b>${escH(f.descricao)}</b><p>${c?escH(c.nome)+" · ":""}${eur(comIva(f.valor))} com IVA${f.numero?` · ${escH(f.numero)}`:""}</p><p>${f.est==="paga"?`Paga a ${fdate(f.pagaEm)}`:f.vencimento?(d<0?`<span style="color:var(--signal)">Venceu há ${-d} dias</span>`:`Vence a ${fdate(f.vencimento+"T00:00:00")}`):""}</p>
+  <form class="fe" data-fef="${f.id}" hidden><input type="text" placeholder="N.º da fatura, ex.: FT 2026/14" aria-label="Número da fatura"><button class="btn sm blue" type="submit">Guardar</button></form>
+  <div class="meta">${pill(f.est)}<span class="acts">${acts}<button class="btn sm ghost" type="button" data-fd="${f.id}" aria-label="Apagar registo">✕</button></span></div></div>`;}
+function bindFaturas(v){
+  v.querySelectorAll("[data-fe]").forEach(b=>b.onclick=()=>{const f=v.querySelector(`[data-fef="${b.dataset.fe}"]`);f.hidden=false;f.querySelector("input").focus();});
+  v.querySelectorAll("[data-fef]").forEach(f=>f.onsubmit=async e=>{e.preventDefault();const n=f.querySelector("input").value.trim();document.activeElement?.blur?.();await Store.update("faturas",f.dataset.fef,{estado:"emitida",numero:n,emitidaEm:Date.now()});act(`Registaste a fatura ${n||""}`.trim(),"tu");});
+  v.querySelectorAll("[data-fp]").forEach(b=>b.onclick=async()=>{const f=state.faturas.find(x=>x.id===b.dataset.fp);await Store.update("faturas",b.dataset.fp,{estado:"paga",pagaEm:Date.now()});act(`Recebeste ${eur(comIva(f?.valor))}`,"tu");});
+  v.querySelectorAll("[data-fd]").forEach(b=>b.onclick=()=>{if(b.dataset.sure){Store.remove("faturas",b.dataset.fd);return;}b.dataset.sure="1";b.textContent="Apagar?";b.classList.add("danger");});
+  const nf=v.querySelector("#fNew");if(nf)nf.onsubmit=async e=>{e.preventDefault();document.activeElement?.blur?.();await Store.add("faturas",{descricao:$("fn-d").value.trim().slice(0,140),clienteId:$("fn-c").value,valor:Math.max(0,Number($("fn-v").value)||0),vencimento:$("fn-dt").value,estado:"por_emitir"});act("Registaste um pagamento avulso","tu");};
+}
+
+/* ---- biblioteca ---- */
+const MODELOS=[
+ {titulo:"Modelo de proposta comercial",tipo:"modelo",conteudo:"# Proposta [número]\n\n## Contexto\nO que o cliente nos contou e o problema a resolver.\n\n## Âmbito\nO que vamos entregar, em linguagem simples.\n\n## Fases e prazos\n1. Briefing e plano (semana 1)\n2. Design e conteúdos\n3. Desenvolvimento\n4. Revisão humana e testes\n5. Entrega e 30 dias de ajustes\n\n## Não incluído\nO que fica fora para evitar mal-entendidos.\n\n## Orçamento e pagamento\nTabela de itens, IVA a 23 % e plano de pagamento.\n\n## Próximo passo\nChamada de 20 minutos para fechar detalhes."},
+ {titulo:"Contrato de prestação de serviços (base)",tipo:"contrato",conteudo:"# Contrato de prestação de serviços\n\n> Base de trabalho. Rever com um jurista antes de usar.\n\n1. **Partes:** BigSolutions (prestador) e [cliente] (cliente).\n2. **Objeto:** os serviços descritos na proposta [número], que faz parte deste contrato.\n3. **Prazos:** os indicados na proposta, contados a partir da receção do briefing e do pagamento de adjudicação.\n4. **Preço e pagamento:** conforme a proposta. Faturas a pagar em 15 dias.\n5. **Alterações:** pedidos fora do âmbito são orçamentados à parte.\n6. **Propriedade:** o cliente recebe os direitos sobre as entregas após o pagamento integral.\n7. **Dados pessoais:** as partes cumprem o RGPD; é assinado um acordo de tratamento de dados quando aplicável.\n8. **Uso de IA:** a BigSolutions usa agentes de IA com revisão humana de todas as entregas.\n9. **Confidencialidade:** informação do cliente não é usada fora do projeto.\n10. **Foro:** tribunal da comarca de [cidade]."},
+ {titulo:"Questionário de briefing",tipo:"processo",conteudo:"# Questionário de briefing\n\n- O que faz o teu negócio, em duas frases?\n- Quem é o teu cliente ideal?\n- Qual é o objetivo principal deste projeto (vender, receber contactos, marcar consultas…)?\n- Que sites ou marcas admiras, e porquê?\n- Já tens logótipo, cores, fotos e textos?\n- Tens domínio e alojamento? Quem gere?\n- Prazo ideal e data limite?\n- Orçamento previsto?\n- Quem decide e aprova do teu lado?"},
+ {titulo:"Checklist de entrega (Sentinel)",tipo:"processo",conteudo:"# Checklist de entrega\n\n- [ ] Textos revistos (ortografia, tom, sem promessas irrealistas)\n- [ ] Funciona em telemóvel, tablet e computador\n- [ ] Velocidade: página principal carrega em menos de 3 s\n- [ ] Formulários testados e a chegar ao email certo\n- [ ] Política de privacidade e cookies (RGPD)\n- [ ] Imagens com direitos de uso confirmados\n- [ ] SEO básico: títulos, descrições, Google Search Console\n- [ ] Acessos e palavras-passe entregues ao cliente\n- [ ] Aprovação final de um responsável humano"},
+ {titulo:"Email de follow-up de proposta",tipo:"modelo",conteudo:"Assunto: A tua proposta BigSolutions\n\nOlá [nome],\n\nEnviámos a proposta [número] há alguns dias e queríamos saber se ficou alguma dúvida.\n\nSe for útil, marcamos 15 minutos para ajustar o âmbito ou o plano de pagamento ao que precisas.\n\nObrigado,\nEquipa BigSolutions"},
+ {titulo:"Tom de voz da BigSolutions",tipo:"marca",contexto:true,conteudo:"# Tom de voz\n\n- Português de Portugal, claro e direto. Tratamos os clientes por \"você\" em documentos formais e por \"tu\" nas redes sociais.\n- Confiantes sem exagero: nada de \"revolucionário\" ou \"o melhor do mercado\".\n- Concretos: prazos, números e próximos passos em vez de adjetivos.\n- Honestos sobre a IA: dizemos que usamos agentes de IA e que um humano revê tudo.\n- Frases curtas. Uma ideia por parágrafo."},
+];
+function rBiblioteca(){
+  const v=$("m-biblioteca");
+  if(state.sel.doc){const d=state.biblioteca.find(x=>x.id===state.sel.doc);if(d)return rDoc(v,d);v.innerHTML='<p class="thinking">A abrir documento…</p>';return;}
+  const q=state.qLib.toLowerCase(),f=state.fLib;
+  const l=state.biblioteca.filter(d=>(f==="todos"||(f==="contexto"?d.contexto:d.tipo===f))&&(!q||(d.titulo+" "+(d.conteudo||"")).toLowerCase().includes(q)));
+  const falta=MODELOS.filter(m=>!state.biblioteca.some(d=>d.titulo===m.titulo));
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Conhecimento</p><h1>Biblioteca</h1><p class="muted">Modelos, contratos, processos e entregas reutilizáveis. Os documentos marcados com "Os agentes leem sempre" entram em todas as respostas da equipa (máximo 3).</p></div><button class="btn primary" id="lNew" type="button">+ Novo documento</button></div>
+  <details class="box"${state.libGen?" open":""}><summary class="sum">Criar um documento com um agente</summary><form class="form-grid" id="lGen" style="margin-top:12px">
+    <label class="f" for="lg-a">Agente<select id="lg-a">${AG.map(a=>`<option value="${a.id}">${a.nome} · ${a.cargo}</option>`).join("")}</select></label>
+    <label class="f" for="lg-t">Tipo<select id="lg-t">${Object.entries(TIPOS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select></label>
+    <label class="f full" for="lg-d">O que precisas<textarea id="lg-d" rows="2" required placeholder="Ex.: guia de onboarding de um cliente novo, passo a passo"></textarea></label>
+    <div class="full">${state.libGen==="busy"?`<span class="thinking">A escrever…</span>`:`<button class="btn blue" type="submit">Criar</button>`}</div></form></details>
+  ${falta.length?`<div class="box"><h3>Modelos base · ${falta.length}</h3><div class="cards">${falta.map((m,i)=>`<div class="ccard static"><span class="ccard-h"><span class="t"><b>${escH(m.titulo)}</b><small>${TIPOS[m.tipo]}${m.contexto?" · os agentes leem sempre":""}</small></span></span><button class="btn sm" type="button" data-base="${MODELOS.indexOf(m)}" style="justify-self:start">Adicionar à biblioteca</button></div>`).join("")}</div></div>`:""}
+  <div class="toolbar"><input type="text" id="lQ" placeholder="Procurar na biblioteca" value="${escH(state.qLib)}" aria-label="Procurar na biblioteca"><div class="filters">${[["todos","Todos"],["contexto","Lidos sempre"],...Object.entries(TIPOS)].map(([k,n])=>`<button type="button" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join("")}</div></div>
+  ${l.length?`<div class="cards">${l.map(d=>`<button class="ccard" data-d="${d.id}"><span class="ccard-h"><span class="t"><b>${escH(d.titulo)}</b><small>${TIPOS[d.tipo]||d.tipo}${d.origem&&BYID[d.origem]?` · ${BYID[d.origem].nome}`:""} · ${fdate(d.atualizadoEm||d.criadaEm)}</small></span>${d.contexto?`<span class="pill" style="--pc:var(--holo)">lido sempre</span>`:""}</span><small class="muted excerpt">${escH(String(d.conteudo||"").replace(/[#*>`-]/g,"").slice(0,140))}</small></button>`).join("")}</div>`
+    :`<div class="empty">${state.biblioteca.length?"Nada corresponde à pesquisa.":"A biblioteca está vazia. Adiciona os modelos base acima, cria um documento, ou guarda uma entrega aprovada."}</div>`}`;
+  $("lQ").oninput=e=>{state.qLib=e.target.value;const pos=e.target.selectionStart;rBiblioteca();const i=$("lQ");i.focus();i.setSelectionRange(pos,pos);};
+  v.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{state.fLib=b.dataset.f;rBiblioteca();});
+  v.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{state.sel.doc=b.dataset.d;rBiblioteca();v.scrollTop=0;});
+  v.querySelectorAll("[data-base]").forEach(b=>b.onclick=async()=>{const m=MODELOS[Number(b.dataset.base)];b.disabled=true;await Store.add("biblioteca",{titulo:m.titulo,tipo:m.tipo,conteudo:m.conteudo,contexto:!!m.contexto&&state.biblioteca.filter(d=>d.contexto).length<3,origem:"modelo"});act(`Adicionaste «${m.titulo}» à biblioteca`,"tu");});
+  $("lNew").onclick=async()=>{const id=await Store.add("biblioteca",{titulo:"Novo documento",tipo:"modelo",conteudo:"",contexto:false,origem:"tu"});state.sel.doc=id;renderMod();};
+  $("lGen").onsubmit=async e=>{e.preventDefault();const desc=$("lg-d").value.trim();if(!desc)return;const a=BYID[$("lg-a").value],tipo=$("lg-t").value;document.activeElement?.blur?.();
+    state.libGen="busy";a.working="documento para a biblioteca";renderMod();
+    try{const {text}=await ask(`${persona(a)}\n\nPara este pedido ignora o limite de palavras de conversa.\nCria um documento de trabalho interno da BigSolutions (${TIPOS[tipo]}): ${desc}\nEscreve em Markdown, pronto a reutilizar, começando com um título (#). Usa [campos entre parênteses retos] onde for preciso preencher. Máximo de 500 palavras.`,{tier:"default"});
+      const t=(text.match(/^#\s+(.+)$/m)||[])[1]||desc.slice(0,60);const id=await Store.add("biblioteca",{titulo:t.slice(0,100),tipo,conteudo:text.slice(0,20000),contexto:false,origem:a.id});act(`criou «${t}» na biblioteca`,a.id);state.sel.doc=id;}
+    catch(err){act(`não conseguiu criar o documento: ${errMsg(err)}`,a.id);}
+    state.libGen=false;a.working=null;renderMod();};
+}
+function rDoc(v,d){
+  const lidos=state.biblioteca.filter(x=>x.contexto&&x.id!==d.id).length;
+  v.innerHTML=`<button class="btn sm ghost" id="dBack" type="button">← Biblioteca</button>
+  <form class="box" id="dForm"><div class="form-grid three">
+    <label class="f" for="d-t" style="grid-column:span 2">Título<input type="text" id="d-t" value="${escH(d.titulo)}"></label>
+    <label class="f" for="d-tipo">Tipo<select id="d-tipo">${Object.entries(TIPOS).map(([k,n])=>`<option value="${k}"${d.tipo===k?" selected":""}>${n}</option>`).join("")}</select></label></div>
+    <label class="check" for="d-ctx"><input type="checkbox" id="d-ctx"${d.contexto?" checked":""}${!d.contexto&&lidos>=3?" disabled":""}> Os agentes leem sempre este documento${!d.contexto&&lidos>=3?" (já tens 3 marcados)":""}</label>
+    <label class="f" for="d-c">Conteúdo (Markdown)<textarea id="d-c" rows="18" class="mono">${escH(d.conteudo||"")}</textarea></label>
+    <div class="row-btns"><button class="btn blue" type="submit">Guardar</button><button class="btn" type="button" id="dView">Pré-visualizar</button><span class="spacer"></span><button class="btn ghost" type="button" id="dDel">Apagar</button></div></form>`;
+  $("dBack").onclick=()=>{state.sel.doc=null;rBiblioteca();};
+  $("dForm").onsubmit=async e=>{e.preventDefault();document.activeElement?.blur?.();await Store.update("biblioteca",d.id,{titulo:$("d-t").value.trim()||d.titulo,tipo:$("d-tipo").value,contexto:$("d-ctx").checked,conteudo:$("d-c").value.slice(0,20000),atualizadoEm:Date.now()});act(`Atualizaste «${d.titulo}» na biblioteca`,"tu");renderMod();};
+  $("dView").onclick=()=>openDoc({titulo:$("d-t").value,agente:BYID[d.origem]?d.origem:"atlas",resultado:$("d-c").value,sub:TIPOS[$("d-tipo").value]||"",libItem:true});
+  const del=$("dDel");del.onclick=async()=>{if(del.dataset.sure){state.sel.doc=null;await Store.remove("biblioteca",d.id);renderMod();return;}del.dataset.sure="1";del.textContent="Confirmar: apagar";del.classList.add("danger");};
+}
+$("mLib").onclick=async()=>{const t=docOpen;if(!t||!t.resultado)return;await Store.add("biblioteca",{titulo:String(t.titulo).slice(0,100),tipo:"entrega",conteudo:String(t.resultado).slice(0,20000),contexto:false,origem:BYID[t.agente]?t.agente:"tu"});t.libItem=true;$("mLib").hidden=true;act(`Guardaste «${t.titulo}» na biblioteca`,"tu");};
+
+/* ---- métricas ---- */
+function rMetricas(){
+  const v=$("m-metricas");const fs=state.faturas.map(f=>({...f,est:faturaEstado(f)}));
+  const months=[];{const d=new Date();d.setDate(1);for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);months.push({k:monthKey(x.getTime()),n:x.toLocaleDateString("pt-PT",{month:"short"}).replace(".","")});}}
+  months.forEach(m=>{m.fat=fs.filter(f=>f.emitidaEm&&monthKey(f.emitidaEm)===m.k).reduce((s,f)=>s+f.valor,0);m.rec=fs.filter(f=>f.pagaEm&&monthKey(f.pagaEm)===m.k).reduce((s,f)=>s+f.valor,0);});
+  const cur=months[months.length-1];
+  const porReceber=fs.filter(f=>f.est==="emitida"||f.est==="vencida").reduce((s,f)=>s+f.valor,0),venc=fs.filter(f=>f.est==="vencida").reduce((s,f)=>s+f.valor,0);
+  const dec=state.propostas.filter(x=>x.estado==="aceite"||x.estado==="recusada"),ace=state.propostas.filter(x=>x.estado==="aceite");
+  const reqT=state.pedidos.filter(p=>p.estado==="aceite"||p.estado==="recusado"),reqA=state.pedidos.filter(p=>p.estado==="aceite");
+  const T=state.tarefas,ap=T.filter(t=>t.estado==="aprovado"),prim=ap.filter(t=>!t.alteracoesN),notas=T.filter(t=>t.revisao?.nota).map(t=>t.revisao.nota);
+  const tempos=ap.filter(t=>t.aprovadaEm&&t.criadaEm).map(t=>(t.aprovadaEm-t.criadaEm)/864e5);
+  const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+  const pct=(a,b)=>b?Math.round(a/b*100)+"%":"—";
+  const price=LS.get("price",{in:4,out:20});
+  const custoT=t=>((t.custo?.in||0)/4/1e6)*price.in+((t.custo?.out||0)/4/1e6)*price.out;
+  const tokIn=T.reduce((s,t)=>s+(t.custo?.in||0),0),tokOut=T.reduce((s,t)=>s+(t.custo?.out||0),0);
+  const custoTotal=T.reduce((s,t)=>s+custoT(t),0);
+  const projRows=state.projetos.map(p=>{const ts=projTasks(p.id);const c=ts.reduce((s,t)=>s+custoT(t),0);const fat=fs.filter(f=>f.projetoId===p.id&&(f.est!=="por_emitir")).reduce((s,f)=>s+f.valor,0);const base=fat||Number(p.orcamento)||0;return {p,c,fat,base,m:base-c,tk:ts.reduce((s,t)=>s+tok((t.custo?.in||0)+(t.custo?.out||0)),0)};}).sort((a,b)=>b.base-a.base);
+  const agRows=AG.map(a=>{const ts=T.filter(t=>t.agente===a.id);const ent=ts.filter(t=>["revisao","feito","aprovado","alteracoes"].includes(t.estado)||t.resultado);const apr=ts.filter(t=>t.estado==="aprovado");const ns=ts.filter(t=>t.revisao?.nota).map(t=>t.revisao.nota);
+    return {a,ent:ent.length,apr:apr.length,prim:apr.filter(t=>!t.alteracoesN).length,nota:avg(ns)};});
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Desempenho</p><h1>Métricas</h1><p class="muted">Calculadas a partir dos teus dados: faturação, propostas, tarefas e revisões do Sentinel. Valores sem IVA.</p></div></div>
+  <h2 class="sec">Receita</h2>
+  <div class="kpis">${kpi("propostas",eur(cur.fat),"faturado este mês")}${kpi("propostas",eur(cur.rec),"recebido este mês")}${kpi("propostas",eur(porReceber),"por receber")}${kpi("propostas",eur(venc),"vencido",venc>0)}${kpi("projetos",eur(avg(state.projetos.map(p=>Number(p.orcamento)||0).filter(Boolean))||0),"valor médio por projeto")}</div>
+  <div class="box"><div class="chart-h"><h3>Faturado e recebido · últimos 6 meses</h3><div class="legend"><span><i style="background:#6F86FF"></i>Faturado</span><span><i style="background:#2EAD76"></i>Recebido</span></div></div>
+    ${months.some(m=>m.fat||m.rec)?`<div class="chart" id="revChart">${barChart(months)}<div class="tip" id="revTip" hidden></div></div>
+    <details><summary class="sum">Ver tabela</summary><div class="tbl-wrap"><table class="items ro"><thead><tr><th>Mês</th><th class="n">Faturado</th><th class="n">Recebido</th></tr></thead><tbody>${months.map(m=>`<tr><td>${m.n}</td><td class="n">${eur(m.fat)}</td><td class="n">${eur(m.rec)}</td></tr>`).join("")}</tbody></table></div></details>`
+    :`<div class="empty">Ainda sem faturação registada. Quando marcares faturas como emitidas e pagas, o gráfico aparece aqui.</div>`}</div>
+  <h2 class="sec">Comercial</h2>
+  <div class="kpis">${kpi("pedidos",pct(reqA.length,reqT.length),`pedidos convertidos em projeto (${reqA.length} de ${reqT.length})`)}${kpi("propostas",state.propostas.filter(x=>x.estado==="enviada").length,"propostas à espera de resposta")}${kpi("propostas",pct(ace.length,dec.length),"taxa de aceitação de propostas")}${kpi("propostas",eur(ace.reduce((s,x)=>s+subtotal(x),0)),"valor das propostas aceites")}${kpi("clientes",state.clientes.filter(c=>c.estado==="ativo").length,"clientes ativos")}</div>
+  <h2 class="sec">Produção e qualidade</h2>
+  <div class="kpis">${kpi("aprovacoes",ap.length,"tarefas aprovadas")}${kpi("aprovacoes",pct(prim.length,ap.length),"aprovadas à primeira")}${kpi("aprovacoes",avg(notas)?avg(notas).toFixed(1)+"/10":"—","nota média do Sentinel")}${kpi("aprovacoes",avg(tempos)!==null?avg(tempos).toFixed(1)+" dias":"—","tempo médio até aprovação")}${kpi("aprovacoes",porAprovar().length,"à espera de aprovação",porAprovar().length>0)}</div>
+  <div class="box"><h3>Por agente</h3><div class="tbl-wrap"><table class="items ro"><thead><tr><th>Agente</th><th class="n">Entregas</th><th class="n">Aprovadas</th><th class="n">À primeira</th><th class="n">Nota média</th></tr></thead><tbody>${agRows.map(r=>`<tr><td><span class="tag"><i style="background:${r.a.cor}"></i>${r.a.nome}</span> <span class="muted">${r.a.cargo}</span></td><td class="n">${r.ent}</td><td class="n">${r.apr}</td><td class="n">${pct(r.prim,r.apr)}</td><td class="n">${r.nota?r.nota.toFixed(1):"—"}</td></tr>`).join("")}</tbody></table></div></div>
+  <h2 class="sec">Custo de IA e margem</h2>
+  <div class="note">Hoje os agentes usam a tua conta Claude, sem custo por pedido. Estes valores são uma estimativa do que custaria com a API, a partir do tamanho dos textos (cerca de 4 caracteres por token). Só contam as tarefas executadas a partir desta versão.</div>
+  <form class="toolbar" id="priceF"><label class="f" for="pi">€ por milhão de tokens de entrada<input type="number" id="pi" step="0.1" min="0" value="${price.in}"></label><label class="f" for="po">€ por milhão de tokens de saída<input type="number" id="po" step="0.1" min="0" value="${price.out}"></label><button class="btn sm" type="submit" style="align-self:end">Atualizar</button></form>
+  <div class="kpis small">${kpi("metricas",(tok(tokIn)/1000).toFixed(1)+" mil","tokens de entrada (estim.)")}${kpi("metricas",(tok(tokOut)/1000).toFixed(1)+" mil","tokens de saída (estim.)")}${kpi("metricas",custoTotal.toLocaleString("pt-PT",{style:"currency",currency:"EUR",maximumFractionDigits:2}),"custo estimado via API")}${kpi("metricas",T.filter(t=>t.custo).length,"tarefas medidas")}</div>
+  <div class="box"><h3>Margem estimada por projeto</h3>${projRows.length?`<div class="tbl-wrap"><table class="items ro"><thead><tr><th>Projeto</th><th class="n">Faturado / orçamento</th><th class="n">Tokens (estim.)</th><th class="n">Custo IA (estim.)</th><th class="n">Margem (estim.)</th></tr></thead><tbody>${projRows.map(r=>`<tr><td>${escH(r.p.nome)} ${pill(r.p.estado)}</td><td class="n">${eur(r.base)}${r.fat?"":` <small class="muted">orç.</small>`}</td><td class="n">${r.tk.toLocaleString("pt-PT")}</td><td class="n">${r.c.toLocaleString("pt-PT",{style:"currency",currency:"EUR",maximumFractionDigits:2})}</td><td class="n">${r.base?Math.round(r.m/r.base*100)+"%":"—"}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Sem projetos.</div>`}</div>`;
+  bindGo(v);
+  $("priceF").onsubmit=e=>{e.preventDefault();LS.set("price",{in:Math.max(0,Number($("pi").value)||0),out:Math.max(0,Number($("po").value)||0)});document.activeElement?.blur?.();renderMod();};
+  const ch=$("revChart");if(ch){const tip=$("revTip");
+    ch.querySelectorAll("[data-m]").forEach(r=>{const m=months[Number(r.dataset.m)];const show=()=>{tip.innerHTML=`<b>${m.n}</b><span><i style="background:#6F86FF"></i>Faturado ${eur(m.fat)}</span><span><i style="background:#2EAD76"></i>Recebido ${eur(m.rec)}</span>`;tip.hidden=false;const cr=ch.getBoundingClientRect(),rr=r.getBoundingClientRect();tip.style.left=Math.min(cr.width-170,Math.max(0,rr.left-cr.left+rr.width/2-85))+"px";tip.style.top="4px";};
+      r.addEventListener("pointerenter",show);r.addEventListener("focus",show);r.addEventListener("pointerleave",()=>tip.hidden=true);r.addEventListener("blur",()=>tip.hidden=true);});}
+}
+function barChart(months){
+  const W=1000,H=280,L=70,R=10,T=14,B=34,iw=W-L-R,ih=H-T-B;
+  const mx=Math.max(1,...months.map(m=>Math.max(m.fat,m.rec)));const step=Math.pow(10,Math.floor(Math.log10(mx)));const top=Math.ceil(mx/step/2)*step*2||1;
+  const y=v=>T+ih-(v/top)*ih;const gw=iw/months.length,bw=Math.min(34,gw*.26);
+  const bar=(x,v,c)=>{const h=Math.max(0,y(0)-y(v));if(h<=0)return "";const r=Math.min(4,h,bw/2);const yy=y(v);return `<path d="M${x},${y(0)} V${yy+r} Q${x},${yy} ${x+r},${yy} H${x+bw-r} Q${x+bw},${yy} ${x+bw},${yy+r} V${y(0)} Z" fill="${c}"/>`;};
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Faturado e recebido por mês">`;
+  for(let i=0;i<=4;i++){const v=top*i/4,yy=y(v);s+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-width="1"${i?' stroke-dasharray="2 4"':""}/><text x="${L-8}" y="${yy+4}" text-anchor="end" class="ax">${v>=1000?(v/1000).toLocaleString("pt-PT",{maximumFractionDigits:1})+" mil":Math.round(v)}</text>`;}
+  months.forEach((m,i)=>{const cx=L+gw*i+gw/2;s+=bar(cx-bw-1,m.fat,"#6F86FF")+bar(cx+1,m.rec,"#2EAD76")+`<text x="${cx}" y="${H-10}" text-anchor="middle" class="ax">${m.n}</text><rect data-m="${i}" x="${L+gw*i}" y="${T}" width="${gw}" height="${ih}" fill="transparent" tabindex="0" aria-label="${m.n}: faturado ${eur(m.fat)}, recebido ${eur(m.rec)}"/>`;});
+  return s+"</svg>";
+}
+
+/* ============ FASE 3: PILOTO AUTOMÁTICO, VOZ, COMANDO DO ATLAS, PORTAL, MEMÓRIA ============ */
+MODS.push("definicoes");
+const AP_DEF={on:false,autoRun:true,gate:true,autoRedo:true,redoBelow:7,autoApprove:false,approveMin:9,maxDia:15};
+state.ap={...AP_DEF,...LS.get("ap",{})};state.voz={on:false,rate:1,...LS.get("voz",{})};
+function whoName(w){return w==="tu"?"Tu":w==="piloto"?"Piloto automático":BYID[w]?.nome||"";}
+function whoColor(w){return w==="tu"?"#5FE3FF":w==="piloto"?"#FF6B2C":BYID[w]?.cor||"#8792B3";}
+
+/* ---- voz ---- */
+const synth=window.speechSynthesis||null;let vozPT=null;
+function pickVoice(){try{const vs=synth?.getVoices()||[];vozPT=vs.find(v=>/pt[-_]PT/i.test(v.lang))||vs.find(v=>/^pt/i.test(v.lang))||null;}catch{vozPT=null;}}
+if(synth){pickVoice();try{synth.addEventListener("voiceschanged",pickVoice);}catch{}}
+const PITCH={atlas:.9,nova:1.25,pixel:1.1,forge:.8,echo:1.15,scout:1.05,ledger:.85,sentinel:.95};
+function falar(texto,agente,force){
+  if((!state.voz.on&&!force)||!synth)return;
+  const clean=String(texto||"").replace(/```[\s\S]*?```/g,"").replace(/[#*_`>|]/g,"").replace(/\n+/g,". ").slice(0,1400);
+  try{const u=new SpeechSynthesisUtterance(clean);u.lang="pt-PT";if(vozPT)u.voice=vozPT;u.rate=Number(state.voz.rate)||1;u.pitch=PITCH[agente]||1;synth.speak(u);}catch{}
+}
+
+/* ---- piloto automático ---- */
+const apCount=()=>{const c=LS.get("apc",{d:"",n:0});return c.d===today()?c.n:0;};
+const apInc=()=>LS.set("apc",{d:today(),n:apCount()+1});
+let apBusy=false;
+setInterval(async()=>{
+  const ap=state.ap;if(!ap.on||!S||apBusy||!state.loaded||state.meeting)return;
+  if(Object.keys(state.busy).length||Object.keys(state.reviewing).length)return;
+  if(apCount()>=ap.maxDia)return;
+  apBusy=true;
+  try{
+    if(ap.autoApprove){const t=porAprovar().find(t=>!t.projetoId&&t.revisao&&t.revisao.nota>=ap.approveMin);
+      if(t){apInc();await aprovar(t);act(`aprovou «${t.titulo}» (tarefa interna, nota ${t.revisao.nota})`,"piloto");return;}}
+    if(ap.autoRedo){const t=porAprovar().find(t=>t.revisao&&t.revisao.nota<ap.redoBelow&&!t.autoRedo);
+      if(t){apInc();await Store.update("tarefas",t.id,{autoRedo:true});act(`pediu ao ${BYID[t.agente]?.nome} para melhorar «${t.titulo}» (nota ${t.revisao.nota})`,"piloto");
+        alterar({...t,autoRedo:true},"Melhora a entrega corrigindo estes pontos do Sentinel: "+((t.revisao.problemas||[]).join("; ")||t.revisao.resumo));return;}}
+    if(ap.autoRun){
+      const cand=state.tarefas.filter(t=>t.estado==="afazer"&&!t.erro).sort((a,b)=>(a.criadaEm||0)-(b.criadaEm||0))
+        .find(t=>!ap.gate||!t.projetoId||!projTasks(t.projetoId).some(x=>["curso","revisao","feito","alteracoes"].includes(x.estado)));
+      if(cand){apInc();act(`pôs o ${BYID[cand.agente]?.nome} a trabalhar em «${cand.titulo}»`,"piloto");runTask(cand);return;}
+    }
+  }finally{apBusy=false;}
+},6000);
+
+/* ---- definições ---- */
+function rDefinicoes(){
+  const v=$("m-definicoes"),ap=state.ap;
+  const nf=state.clientes.reduce((s,c)=>s+(c.memoria||[]).length,0);
+  const chk=(id,on,txt,dis)=>`<label class="check" for="${id}"><input type="checkbox" id="${id}"${on?" checked":""}${dis?" disabled":""}> ${txt}</label>`;
+  v.innerHTML=`<div class="mod-head"><div><p class="eyebrow">Configuração</p><h1>Definições</h1></div></div>
+  <div class="box ap-box${ap.on?" on":""}"><div class="ap-h"><div><h3>Piloto automático</h3><p class="muted" style="margin:6px 0 0;font-size:.88rem">A equipa avança sozinha com o trabalho, uma tarefa de cada vez. As entregas para clientes esperam sempre pela tua aprovação.</p></div>
+    <button class="switch" type="button" id="apOn" role="switch" aria-checked="${ap.on}" aria-label="Ligar o piloto automático"><span></span></button></div>
+    <div class="ap-opts">
+      ${chk("apRun",ap.autoRun,"Executar as tarefas por fazer, da mais antiga para a mais recente")}
+      ${chk("apGate",ap.gate,"Em cada projeto, esperar pela tua aprovação antes de passar à tarefa seguinte",!ap.autoRun)}
+      <div class="ap-row">${chk("apRedo",ap.autoRedo,"Pedir uma versão melhorada quando a nota do Sentinel for inferior a")}<input type="number" id="apRedoN" min="1" max="10" value="${ap.redoBelow}" aria-label="Nota mínima"></div>
+      <div class="ap-row">${chk("apAppr",ap.autoApprove,"Aprovar sozinho tarefas internas (sem cliente) com nota igual ou superior a")}<input type="number" id="apApprN" min="1" max="10" value="${ap.approveMin}" aria-label="Nota para aprovar"></div>
+      <div class="ap-row"><span class="check">Máximo de ações por dia</span><input type="number" id="apMax" min="1" max="200" value="${ap.maxDia}" aria-label="Máximo de ações por dia"></div>
+    </div>
+    <p class="muted" style="font-size:.82rem;margin:0">Hoje: ${apCount()} de ${ap.maxDia} ações. O piloto só trabalha enquanto o back office estiver aberto e pausa durante as reuniões.</p></div>
+  <div class="box"><div class="ap-h"><div><h3>Voz</h3><p class="muted" style="margin:6px 0 0;font-size:.88rem">Os agentes leem em voz alta as falas das reuniões, o briefing, as respostas nas conversas e as respostas do comando do Atlas. Cada agente tem um tom diferente.</p></div>
+    <button class="switch" type="button" id="vzOn" role="switch" aria-checked="${state.voz.on}" aria-label="Ligar a voz"${synth?"":" disabled"}><span></span></button></div>
+    ${synth?`<div class="ap-row"><label class="f" for="vzRate" style="flex:1">Velocidade da fala<input type="range" id="vzRate" min="0.7" max="1.4" step="0.05" value="${state.voz.rate}"></label><button class="btn sm" type="button" id="vzTest">Testar</button></div><p class="muted" style="font-size:.82rem;margin:0">${vozPT?`Voz: ${escH(vozPT.name)} (${escH(vozPT.lang)})`:"Não encontrei uma voz em português neste dispositivo. Vai ser usada a voz predefinida."}</p>`:`<p class="note" style="margin:0">Este browser não tem síntese de voz.</p>`}
+    <p class="muted" style="font-size:.82rem;margin:0">Falar com os agentes por voz precisa de acesso ao microfone, que esta página não tem. No telemóvel podes ditar no comando do Atlas com o microfone do teclado.</p></div>
+  <div class="box"><h3>Memória e Super Memória</h3><p class="muted" style="margin:0;font-size:.88rem">${state.clientes.length} clientes, ${nf} factos de clientes e ${state.atas.length} atas de reunião. Exporta tudo num ficheiro JSON no formato <code>bigsolutions-memoria/1</code>, que a Super Memória e os agentes em Python sabem ler. Importa um ficheiro no mesmo formato para juntar factos aos clientes, sem duplicar.</p>
+    <div class="row-btns"><button class="btn blue" type="button" id="memExp">Exportar memória</button><label class="btn" for="memImp" style="cursor:pointer">Importar ficheiro<input type="file" id="memImp" accept="application/json,.json" hidden></label></div>
+    <p class="muted" id="memMsg" style="font-size:.85rem;margin:0" aria-live="polite">${escH(state.memMsg||"")}</p></div>`;
+  const save=()=>{LS.set("ap",state.ap);};
+  $("apOn").onclick=()=>{ap.on=!ap.on;save();act(ap.on?"Ligaste o piloto automático":"Desligaste o piloto automático","tu");rDefinicoes();renderMod();};
+  const bindChk=(id,k)=>{$(id).onchange=e=>{ap[k]=e.target.checked;save();e.target.blur();rDefinicoes();};};
+  bindChk("apRun","autoRun");bindChk("apGate","gate");bindChk("apRedo","autoRedo");bindChk("apAppr","autoApprove");
+  const bindN=(id,k,mn,mx)=>{$(id).onchange=e=>{ap[k]=Math.min(mx,Math.max(mn,Math.round(Number(e.target.value)||mn)));save();};};
+  bindN("apRedoN","redoBelow",1,10);bindN("apApprN","approveMin",1,10);bindN("apMax","maxDia",1,200);
+  $("vzOn").onclick=()=>{state.voz.on=!state.voz.on;LS.set("voz",state.voz);if(!state.voz.on)try{synth?.cancel();}catch{}rDefinicoes();};
+  if($("vzRate"))$("vzRate").onchange=e=>{state.voz.rate=Number(e.target.value)||1;LS.set("voz",state.voz);};
+  if($("vzTest"))$("vzTest").onclick=()=>{falar("Olá, sou o Atlas. A equipa está pronta.","atlas",true);setTimeout(()=>falar("E eu sou a Nova, da estratégia.","nova",true),50);};
+  $("memExp").onclick=exportMem;$("memImp").onchange=e=>{const f=e.target.files?.[0];if(f)importMem(f);e.target.value="";};
+}
+function memObj(){return {formato:"bigsolutions-memoria/1",exportadoEm:new Date().toISOString(),agencia:{nome:"BigSolutions"},
+  entidades:state.clientes.map(c=>({tipo:"cliente",id:c.id,nome:c.nome,empresa:c.empresa||"",contacto:c.contacto||"",setor:c.setor||"",estado:c.estado||"",
+    factos:(c.memoria||[]).map(m=>({texto:m.facto,origem:m.origem||"",data:new Date(m.data||Date.now()).toISOString()}))})),
+  reunioes:state.atas.map(a=>({tema:a.topico,resumo:a.resumo,decisoes:a.decisoes||[],data:new Date(a.criadaEm||Date.now()).toISOString()}))};}
+async function exportMem(){
+  const json=JSON.stringify(memObj(),null,2);
+  if(DL){try{await DL.save({filename:`bigsolutions-memoria-${today()}.json`,data:json});state.memMsg="Ficheiro pronto.";if($("memMsg"))$("memMsg").textContent=state.memMsg;return;}catch{}}
+  openDoc({titulo:"Memória da BigSolutions (JSON)",agente:"atlas",resultado:"```\n"+json+"\n```",sub:"Copia este conteúdo para um ficheiro .json",libItem:true});
+}
+async function importMem(file){
+  const say=t=>{state.memMsg=t;const el=$("memMsg");if(el)el.textContent=t;};
+  try{
+    const d=JSON.parse(await file.text());
+    if(d?.formato!=="bigsolutions-memoria/1"||!Array.isArray(d.entidades))throw new Error("Este ficheiro não está no formato bigsolutions-memoria/1.");
+    let novos=0,factos=0;
+    for(const e of d.entidades.filter(e=>e&&e.tipo==="cliente"&&e.nome).slice(0,500)){
+      let c=state.clientes.find(x=>x.id===e.id)||state.clientes.find(x=>x.nome.toLowerCase()===String(e.nome).toLowerCase());
+      const seen=new Set();const fs=(Array.isArray(e.factos)?e.factos:[]).filter(f=>f&&f.texto).map(f=>({facto:String(f.texto).slice(0,400),origem:String(f.origem||"importado").slice(0,40),data:Date.parse(f.data)||Date.now()})).filter(f=>!seen.has(f.facto)&&seen.add(f.facto));
+      if(!c){await Store.add("clientes",{nome:String(e.nome).slice(0,120),empresa:String(e.empresa||"").slice(0,120),contacto:String(e.contacto||"").slice(0,120),setor:String(e.setor||"").slice(0,80),notas:"",estado:["lead","proposta","ativo","concluido"].includes(e.estado)?e.estado:"lead",memoria:fs.slice(-60)});novos++;factos+=fs.length;continue;}
+      const have=new Set((c.memoria||[]).map(m=>m.facto));const add=fs.filter(f=>!have.has(f.facto));
+      if(add.length){await Store.update("clientes",c.id,{memoria:[...(c.memoria||[]),...add].slice(-60)});factos+=add.length;}
+    }
+    say(`Importado: ${novos} ${novos===1?"cliente novo":"clientes novos"} e ${factos} ${factos===1?"facto":"factos"}.`);act(`Importaste memória: ${novos} clientes e ${factos} factos`,"tu");
+  }catch(e){say(e.message||"Não foi possível ler o ficheiro.");}
+}
+
+/* ---- comando do Atlas ---- */
+let cmdCtl=null,cmdTools=null;
+function resumoIds(){
+  const cl=state.clientes.slice(-40).map(c=>`${c.id} | ${c.nome}${c.empresa?" ("+c.empresa+")":""} | ${c.estado}`).join("\n")||"(nenhum)";
+  const pj=state.projetos.slice(-40).map(p=>`${p.id} | ${p.nome} | cliente ${cliente(p.clienteId)?.nome||"—"} | ${p.estado} | ${progresso(p.id)}% | prazo ${p.prazo||"—"}`).join("\n")||"(nenhum)";
+  const tk=state.tarefas.filter(t=>t.estado!=="aprovado").slice(-50).map(t=>`${t.id} | ${t.titulo} | ${t.agente} | ${t.estado}${t.projetoId?" | projeto "+(projeto(t.projetoId)?.nome||""):""}`).join("\n")||"(nenhuma)";
+  const pd=state.pedidos.filter(p=>p.estado==="novo"||p.estado==="analisado").map(p=>`${p.id} | ${p.nome} | ${p.servico} | ${p.estado}`).join("\n")||"(nenhum)";
+  const fv=state.faturas.filter(f=>faturaEstado(f)==="vencida").map(f=>`${f.descricao} | ${eur(comIva(f.valor))}`).join("\n")||"(nenhum)";
+  return `CLIENTES (id | nome | estado)\n${cl}\n\nPROJETOS (id | nome | cliente | estado | progresso | prazo)\n${pj}\n\nTAREFAS NÃO APROVADAS (id | título | agente | estado)\n${tk}\n\nPEDIDOS ABERTOS (id | nome | serviço | estado)\n${pd}\n\nPAGAMENTOS VENCIDOS\n${fv}\n\nData de hoje: ${today()}`;
+}
+const MODS_OK=["painel","pedidos","clientes","projetos","aprovacoes","propostas","biblioteca","metricas","escritorio","definicoes"];
+const AG_IDS=AG.map(a=>a.id);
+const TOOLS=[
+  {name:"abrir",description:"Abre um módulo do back office no ecrã do fundador, opcionalmente um cliente, projeto ou proposta concretos. Devolve 'ok'.",
+   inputSchema:{type:"object",properties:{modulo:{type:"string",enum:MODS_OK},id:{type:"string",description:"id do cliente, projeto ou proposta (opcional)"}},required:["modulo"]},
+   execute:({modulo,id})=>{const m=String(modulo);if(!MODS_OK.includes(m))throw new Error("módulo desconhecido");const i=id?String(id):null;
+     if(m==="projetos")state.sel.projeto=i;if(m==="clientes")state.sel.cliente=i;if(m==="propostas")state.sel.proposta=i;state.cmdNav=true;showMod(m);return "ok";}},
+  {name:"criar_tarefa",description:"Cria uma tarefa para um agente, opcionalmente dentro de um projeto. Devolve o id da tarefa.",
+   inputSchema:{type:"object",properties:{titulo:{type:"string"},agente:{type:"string",enum:AG_IDS},projeto_id:{type:"string"},detalhe:{type:"string"}},required:["titulo","agente"]},
+   execute:async({titulo,agente,projeto_id,detalhe})=>{const ag=AG_IDS.includes(String(agente))?String(agente):"atlas";const pid=projeto_id&&projeto(String(projeto_id))?String(projeto_id):"";
+     const id=await Store.add("tarefas",{titulo:String(titulo).slice(0,140),agente:ag,detalhe:String(detalhe||"").slice(0,500),estado:"afazer",projetoId:pid,origem:pid?`projeto «${projeto(pid).nome}»`:"comando do Atlas"});act(`criou a tarefa «${String(titulo).slice(0,60)}» para ${BYID[ag].nome}`,"atlas");return {id};}},
+  {name:"executar_tarefa",description:"Põe o agente responsável a trabalhar numa tarefa existente. A entrega vai depois para Aprovações. Devolve 'iniciada'.",
+   inputSchema:{type:"object",properties:{tarefa_id:{type:"string"}},required:["tarefa_id"]},
+   execute:({tarefa_id})=>{const t=state.tarefas.find(x=>x.id===String(tarefa_id));if(!t)throw new Error("tarefa não encontrada");if(t.estado==="aprovado")throw new Error("esta tarefa já está aprovada");if(state.busy[t.id])return "já está em curso";runTask(t,t.estado==="alteracoes"?t.feedback:undefined);return "iniciada";}},
+  {name:"registar_pedido",description:"Regista um pedido de um cliente novo e pede a análise ao Atlas. Devolve o id do pedido.",
+   inputSchema:{type:"object",properties:{nome:{type:"string"},servico:{type:"string",enum:SERVS},mensagem:{type:"string"},empresa:{type:"string"},contacto:{type:"string"}},required:["nome","servico","mensagem"]},
+   execute:async({nome,servico,mensagem,empresa,contacto})=>{const d={nome:String(nome).slice(0,120),empresa:String(empresa||"").slice(0,120),contacto:String(contacto||"").slice(0,120),servico:SERVS.includes(String(servico))?String(servico):"Outro",mensagem:String(mensagem).slice(0,4000),estado:"novo"};
+     const id=await Store.add("pedidos",d);act(`registou o pedido de ${d.nome}`,"atlas");analisar({id,...d});return {id};}},
+  {name:"lembrar_cliente",description:"Guarda um facto na memória de um cliente existente. Devolve 'guardado'.",
+   inputSchema:{type:"object",properties:{cliente_id:{type:"string"},facto:{type:"string"}},required:["cliente_id","facto"]},
+   execute:async({cliente_id,facto})=>{const c=cliente(String(cliente_id));if(!c)throw new Error("cliente não encontrado");await addMem(c,String(facto),"comando");return "guardado";}},
+  {name:"planear_projeto",description:"Pede ao Atlas que crie as tarefas de um projeto a partir da descrição. Corre em segundo plano. Devolve 'a planear'.",
+   inputSchema:{type:"object",properties:{projeto_id:{type:"string"}},required:["projeto_id"]},
+   execute:({projeto_id})=>{const p=projeto(String(projeto_id));if(!p)throw new Error("projeto não encontrado");planear(p);return "a planear";}},
+];
+function openCmd(){$("cmd").hidden=false;setTimeout(()=>$("cmdIn").focus(),30);$("cmdVoz").setAttribute("aria-pressed",String(state.voz.on));}
+function closeCmd(){$("cmd").hidden=true;}
+$("btnCmd").onclick=openCmd;$("cmdClose").onclick=closeCmd;
+$("cmd").addEventListener("click",e=>{if(e.target.id==="cmd")closeCmd();});
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();$("cmd").hidden?openCmd():closeCmd();}else if(e.key==="Escape"&&!$("cmd").hidden)closeCmd();});
+$("cmdVoz").onclick=()=>{state.voz.on=!state.voz.on;LS.set("voz",state.voz);$("cmdVoz").setAttribute("aria-pressed",String(state.voz.on));if(!state.voz.on)try{synth?.cancel();}catch{}};
+$("cmdSugs").querySelectorAll("button").forEach(b=>b.onclick=()=>{$("cmdIn").value=b.textContent;$("cmdForm").requestSubmit();});
+$("cmdStop").onclick=()=>cmdCtl?.abort();
+$("cmdIn").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("cmdForm").requestSubmit();}});
+$("cmdForm").onsubmit=async e=>{
+  e.preventDefault();const txt=$("cmdIn").value.trim();if(!txt||cmdCtl)return;$("cmdIn").value="";
+  const log=$("cmdLog");$("cmdSugs").hidden=true;
+  const me=document.createElement("div");me.className="msg me";me.textContent=txt;log.appendChild(me);
+  const out=document.createElement("div");out.className="msg ai";out.innerHTML='<span class="by" style="color:#FF6B2C">ATLAS</span><div class="md"><span class="thinking">a pensar…</span></div>';log.appendChild(out);log.scrollTop=log.scrollHeight;
+  const body=out.querySelector(".md");
+  if(!S){body.textContent=errMsg({code:"unavailable"});return;}
+  if(cmdTools===null){try{cmdTools=!!(await S.limits?.())?.tools;}catch{cmdTools=false;}}
+  cmdCtl=new AbortController();$("cmdStop").hidden=false;$("cmdGo").hidden=true;BYID.atlas.typing=true;state.cmdNav=false;
+  const prompt=`${persona(BYID.atlas)}\n\nO fundador está a usar a barra de comando do back office.${cmdTools?" Podes agir com as ferramentas da página.":" Nesta vista não tens ferramentas: responde só com informação e diz onde ele deve clicar."}\n\nESTADO ATUAL (com ids):\n${resumoIds()}\n\nPedido do fundador: "${txt}"\n\nRegras: faz o que foi pedido com as ferramentas, usando os ids acima. Nunca aproves entregas: isso é sempre o fundador que faz na página Aprovações. Se o pedido for ambíguo, pergunta antes de agir. No fim responde em 1 a 3 frases curtas a dizer o que fizeste ou a resposta pedida.`;
+  try{
+    const r=await S(prompt,{cache:false,modelTier:state.tier==="deep"?"default":"quick",signal:cmdCtl.signal,...(cmdTools?{tools:TOOLS}:{}),onText:({text})=>{body.innerHTML=md(text);log.scrollTop=log.scrollHeight;}});
+    body.innerHTML=md(r.text);falar(r.text,"atlas");
+  }catch(err){body.innerHTML=(err.text?md(err.text):"")+`<p class="muted">${escH(errMsg(err))}</p>`;}
+  cmdCtl=null;$("cmdStop").hidden=true;$("cmdGo").hidden=false;BYID.atlas.typing=false;log.scrollTop=log.scrollHeight;
+  if(state.cmdNav)setTimeout(closeCmd,1600);
+};
+
+/* ---- portal do cliente ---- */
+const PT_CSS=`.pt-root{--pbg:#05070F;--pp:#0C1226;--pl:rgba(150,172,255,.16);--pi:#EEF1FA;--pm:#8E98B8;--ps:#FF6B2C;--ph:#5FE3FF;--pk:#46D08C;background:var(--pbg);color:var(--pi);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55;margin:0}
+.pt-wrap{max-width:860px;margin:0 auto;padding:32px max(16px,env(safe-area-inset-left,0px)) 48px;display:grid;gap:18px}
+.pt-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.75rem;color:var(--pm);letter-spacing:.08em;text-transform:uppercase}
+.pt-logo{font-family:"Unbounded","Arial Black",sans-serif;font-weight:800;font-size:1rem;color:var(--pi);text-transform:none;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.pt-logo i{width:10px;height:10px;background:var(--ps);border-radius:2px;transform:rotate(45deg);display:inline-block}
+.pt-hero{background:linear-gradient(160deg,rgba(91,120,255,.16),rgba(95,227,255,.04));border:1px solid var(--pl);border-radius:20px;padding:24px;display:grid;gap:14px}
+.pt-hero h1{font-family:"Unbounded","Arial Black",sans-serif;font-size:clamp(1.4rem,4vw,2.1rem);margin:0;line-height:1.1;letter-spacing:-.03em}
+.pt-hero p{margin:0;color:var(--pm)}
+.pt-prog{display:flex;align-items:center;gap:14px}
+.pt-bar{flex:1;height:10px;border-radius:10px;background:var(--pl);overflow:hidden}
+.pt-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ps),var(--ph));border-radius:10px}
+.pt-prog b{font-family:"Unbounded",sans-serif;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.pt-facts{display:flex;flex-wrap:wrap;gap:22px;font-size:.88rem}
+.pt-facts span{display:grid}.pt-facts small{color:var(--pm);font-family:"JetBrains Mono",monospace;font-size:.7rem}
+.pt-box{background:var(--pp);border:1px solid var(--pl);border-radius:16px;padding:20px;display:grid;gap:12px}
+.pt-box h2{font-family:"JetBrains Mono",monospace;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pm);margin:0;font-weight:600}
+.pt-msg{font-size:1rem;white-space:pre-wrap}
+.pt-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pt-list li{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--pl);border-radius:12px;padding:12px 14px;flex-wrap:wrap}
+.pt-list .t{display:grid;min-width:0;flex:1}.pt-list small{color:var(--pm)}
+.pt-st{font-family:"JetBrains Mono",monospace;font-size:.7rem;border-radius:999px;padding:3px 10px;border:1px solid currentColor;white-space:nowrap}
+.pt-foot{color:var(--pm);font-size:.82rem;text-align:center}`;
+const ptEst=t=>t.estado==="aprovado"?["Concluído","#46D08C"]:(t.estado==="revisao"||t.estado==="feito")?["Em revisão","#F2B705"]:(t.estado==="curso"||t.estado==="alteracoes")?["Em curso","#5FE3FF"]:["Planeado","#8E98B8"];
+function portalBody(p){
+  const c=cliente(p.clienteId),ts=projTasks(p.id).sort((a,b)=>(a.criadaEm||0)-(b.criadaEm||0)),pr=progresso(p.id),d=daysTo(p.prazo);
+  const fs=state.faturas.filter(f=>f.projetoId===p.id).map(f=>({...f,est:faturaEstado(f)}));
+  const fe=f=>f.est==="paga"?["Pago","#46D08C"]:f.est==="vencida"?["Em atraso","#FF6B2C"]:["Por pagar","#8E98B8"];
+  return `<div class="pt-wrap"><div class="pt-top"><span class="pt-logo"><i></i>BigSolutions</span><span>Portal do cliente · atualizado a ${new Date().toLocaleDateString("pt-PT")}</span></div>
+  <section class="pt-hero"><p>${escH(c?c.nome:"")}</p><h1>${escH(p.nome)}</h1>
+    <div class="pt-prog"><div class="pt-bar"><i style="width:${pr}%"></i></div><b>${pr}%</b></div>
+    <div class="pt-facts"><span><small>Estado</small>${escH(EST[p.estado]?.[0]||p.estado)}</span><span><small>Prazo</small>${p.prazo?new Date(p.prazo+"T00:00:00").toLocaleDateString("pt-PT"):"a definir"}${p.estado!=="entregue"&&d!==null&&d>=0?` (faltam ${d} dias)`:""}</span><span><small>Fases concluídas</small>${ts.filter(t=>t.estado==="aprovado").length} de ${ts.length}</span></div></section>
+  ${p.portalMsg?`<section class="pt-box"><h2>Mensagem da equipa</h2><div class="pt-msg">${escH(p.portalMsg)}</div></section>`:""}
+  <section class="pt-box"><h2>Trabalho em curso</h2>${ts.length?`<ul class="pt-list">${ts.map(t=>{const e=ptEst(t),a=BYID[t.agente];return `<li><span class="t"><b>${escH(t.titulo)}</b><small>${a?`${a.nome} · ${a.cargo}`:""}</small></span><span class="pt-st" style="color:${e[1]}">${e[0]}</span></li>`;}).join("")}</ul>`:`<p style="margin:0;color:var(--pm)">O plano de trabalho está a ser preparado.</p>`}</section>
+  ${fs.length?`<section class="pt-box"><h2>Pagamentos</h2><ul class="pt-list">${fs.map(f=>{const e=fe(f);return `<li><span class="t"><b>${escH(f.descricao.replace(/^PROP-\d+-\d+ · /,""))}</b><small>${eur(comIva(f.valor))} com IVA${f.vencimento&&f.est!=="paga"?` · até ${new Date(f.vencimento+"T00:00:00").toLocaleDateString("pt-PT")}`:""}</small></span><span class="pt-st" style="color:${e[1]}">${e[0]}</span></li>`;}).join("")}</ul></section>`:""}
+  <p class="pt-foot">Cada entrega é revista por um responsável humano antes de chegar até si. Dúvidas? Responda ao nosso email ou fale connosco por WhatsApp.</p></div>`;
+}
+function portalHTML(p){return `<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escH(p.nome)} · BigSolutions</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800&family=Instrument+Sans:wght@400;600&family=JetBrains+Mono:wght@600&display=swap"><style>${PT_CSS}</style></head><body class="pt-root">${portalBody(p)}</body></html>`;}
+function portalEmail(p){const c=cliente(p.clienteId),ts=projTasks(p.id);const g=k=>ts.filter(t=>ptEst(t)[0]===k).map(t=>"- "+t.titulo).join("\n");
+  return `Assunto: Ponto de situação · ${p.nome}\n\nOlá${c?" "+c.nome:""},\n\n${p.portalMsg||"Partilhamos o ponto de situação do seu projeto."}\n\nProgresso: ${progresso(p.id)}%${p.prazo?` · prazo ${new Date(p.prazo+"T00:00:00").toLocaleDateString("pt-PT")}`:""}\n\n${g("Concluído")?`Concluído:\n${g("Concluído")}\n\n`:""}${g("Em curso")||g("Em revisão")?`Em curso:\n${[g("Em curso"),g("Em revisão")].filter(Boolean).join("\n")}\n\n`:""}${g("Planeado")?`A seguir:\n${g("Planeado")}\n\n`:""}Obrigado,\nEquipa BigSolutions`;}
+let portalP=null;
+function openPortal(p){portalP=p.id;renderPortal();$("portal").hidden=false;$("ptClose").focus();}
+function renderPortal(){const p=projeto(portalP);if(!p){$("portal").hidden=true;return;}$("ptView").innerHTML=portalBody(p);$("ptSave").hidden=!DL;$("ptMsgBtn").textContent=p.portalMsg?"Reescrever mensagem do Atlas":"Escrever mensagem do Atlas";}
+$("ptClose").onclick=()=>{$("portal").hidden=true;portalP=null;};
+$("ptCopy").onclick=async()=>{const p=projeto(portalP);if(!p)return;const b=$("ptCopy");try{await navigator.clipboard.writeText(portalEmail(p));b.textContent="Copiado";}catch{openDoc({titulo:"Email de ponto de situação",agente:"atlas",resultado:portalEmail(p),sub:"Copia o texto",libItem:true});}setTimeout(()=>b.textContent="Copiar email",1800);};
+$("ptSave").onclick=async()=>{const p=projeto(portalP);if(!p||!DL)return;const n=p.nome.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").slice(0,40);try{await DL.save({filename:`portal-${n}.html`,data:portalHTML(p)});}catch{}};
+$("ptMsgBtn").onclick=async()=>{const p=projeto(portalP);if(!p)return;const b=$("ptMsgBtn");b.disabled=true;b.textContent="O Atlas está a escrever…";
+  const ts=projTasks(p.id).map(t=>`- ${t.titulo}: ${ptEst(t)[0]}`).join("\n");
+  try{if(!S)throw {code:"unavailable"};
+    const {text}=await ask(`${persona(BYID.atlas)}${contexto({projetoId:p.id})}\n\nEstado das tarefas:\n${ts||"(ainda sem tarefas)"}\nProgresso: ${progresso(p.id)}%.\n\nEscreve a mensagem da equipa para o portal do cliente: até 110 palavras, em português de Portugal, tratando o cliente por "você", calorosa e concreta: o que já está feito, o que vem a seguir e se precisamos de alguma coisa do cliente. Sem jargão interno, sem notas de revisão nem custos. Só o texto, sem título.`,{tier:"default"});
+    await Store.update("projetos",p.id,{portalMsg:text.trim().slice(0,1500),portalEm:Date.now()});act(`escreveu a atualização do portal de «${p.nome}»`,"atlas");falar(text,"atlas");
+  }catch(e){act(`não conseguiu escrever a atualização: ${errMsg(e)}`,"atlas");}
+  b.disabled=false;renderPortal();};
+
+showMod("painel");
+
+render();requestAnimationFrame(frame);
+(async()=>{
+  try{S=await window.claude?.use?.("sample");}catch{S=null;}
+  try{DL=await window.claude?.use?.("downloads");}catch{DL=null;}
+  if(!S){$("aiNote").hidden=false;$("aiNote").textContent="Os agentes só respondem quando esta página está aberta no claude.ai. O escritório continua visível.";}
+})();
+Store.init();
+})();
+</script>

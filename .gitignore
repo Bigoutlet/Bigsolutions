@@ -1,0 +1,7 @@
+# segredos e dados locais
+.env
+agentes/memoria.json
+agentes/entregas/
+__pycache__/
+*.pyc
+.DS_Store
